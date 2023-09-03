@@ -15,7 +15,9 @@ router.route("/").post(async(req,res)=>{
             time:Time,
         };
 
-        const newPatient = await userDetails.findOneAndUpdate({name:patientName,_id:patient_id,identity:"Patient"},{$push:{bookings:patientData}});
+        await userDetails.findOneAndUpdate({name:patientName,_id:patient_id,identity:"Patient"},{$push:{bookings:patientData}});
+        
+        const newPatient = await userDetails.findOne({name:patientName,_id:patient_id,identity:"Patient"});
         console.log(newPatient)
 
         //update doctor data
@@ -25,7 +27,7 @@ router.route("/").post(async(req,res)=>{
             time:Time,
         }
         const newDoc = await userDetails.findOneAndUpdate({name:docName,email:docMail},{$push:{bookings:docData}});
-        res.status(200).send({message:"Booking Successful",user:newPatient})
+        res.status(200).send({message:"Booking Successful",user:newPatient});
     }
     catch(error){
         console.log("Error occured while Booking :", error)
