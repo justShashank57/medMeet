@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
-import { adminRoute } from "../Routes/adminRoutes";
-import { doctorRoute } from "../Routes/doctorRoutes";
-import { patientRoute } from "../Routes/patientRoutes";
+import { adminRoute } from "../Routes/adminRoutes.js";
+import { doctorRoute } from "../Routes/doctorRoutes.js";
+import { patientRoute } from "../Routes/patientRoutes.js";
 
 export default async (app)=>{
     app.use(cors());

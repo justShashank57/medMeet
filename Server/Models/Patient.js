@@ -11,10 +11,10 @@ const patientSchema = new Schema({
     address:{type:String,required:true},
     photo:{type:String},
     rating:{type:Number},
-    appointments:{
+    appointments:[{
         type:Schema.Types.ObjectId,
         ref:'appointment'
-    },
+    }],
     salt:{type:String,required:true},
 },{
    toJSON:{
