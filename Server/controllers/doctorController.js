@@ -1,12 +1,22 @@
 import { Doctor } from "../Models/doctor.js";
 import { createToken, generateHash, generateSalt, validatePassword } from "../utility/passUtility.js";
 import { findDoctor } from "./adminController.js";
+import validator from "validator";
 
 const maxAge = 3*24*60*60;
+//email validator
+export const validateEmail = async(email)=>{
+     return await validator.isEmail(email);
+}
+
 // signup
 export const doctorSignup = async(req,res) => {
     try{
         const {name,email,password,phone} = req.body;
+        const email_validation = await validateEmail(email);
+        if(!email_validation){
+            return res.status(400).json({message:"Enter a valid mail address."});
+        }
         const existingDoctor = await findDoctor("",email);
         if(existingDoctor){
             return res.status(400).json({message:"User already exists."});
@@ -54,6 +64,11 @@ export const doctorSignup = async(req,res) => {
 export const doctorLogin = async(req,res)=>{
        try{
            const{email,password} = req.body;
+           const email_validation = await validateEmail(email);
+           console.log(email_validation);
+           if(!email_validation){
+               return res.status(400).json({message:"Enter a valid mail address."});
+           }
            const existingDoctor = await findDoctor("",email);
            if(existingDoctor){
               const validate_pass = await validatePassword(password,existingDoctor.password,existingDoctor.salt);
@@ -71,11 +86,11 @@ export const doctorLogin = async(req,res)=>{
               } 
               else return res.status(200).json({message:"Wrong Password."});
            }
-           return res.status.json({message:"User doesn't exists."});
+           return res.status(400).json({message:"User doesn't exists."});
        }
        catch(err){
             console.log(err);
-            res.status.json(err);
+            res.status(400).json(err);
        }
 }
 
