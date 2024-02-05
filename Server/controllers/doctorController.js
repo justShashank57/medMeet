@@ -95,8 +95,48 @@ export const doctorLogin = async(req,res)=>{
 }
 
 // view Profile
+export const doctorProfile = async(req,res)=>{
+    try{
+           const user_payload = req.user;
+           if(user_payload){
+              const id = user_payload._id;
+              const Profile = await Doctor.findById(id);
+              if(Profile){
+                 return res.status(200).json(Profile);
+              }
+              return res.status(400).json({message:"Error fetching Profile."});
+           }
+       }
+       catch(err){
+           console.log(err);
+           return res.status(400).json(err);
+       }
+}
 
 // update Profile
+export const updateProfile = async(req,res) =>{
+    try{
+           const user_payload = req.user;
+           if(user_payload){
+              const {speciality,pincode,address,hospital} = req.body;
+              const id = user_payload._id;
+              const profile = await Doctor.findById(id);
+              if(profile){
+                 profile.speciality = speciality;
+                 profile.pincode = pincode;
+                 profile.address = address;
+                 profile.hospital = hospital;
+                 const udpatedUser = await profile.save();
+                 return res.status(200).json(udpatedUser);
+              }
+              return res.status(400).json({message:"Error in updating user Profile."})
+           }
+       }
+       catch(err){
+           console.log(err);
+           return res.status(400).json(err);
+       }
+}
 
 // view appointments
 
@@ -105,5 +145,28 @@ export const doctorLogin = async(req,res)=>{
 // update appointment status
 
 // isAvailable
+export const updateService = async(req,res)=>{
+    try{
+        const user_payload = req.user;
+        if(user_payload){
+              const doctor = await Doctor.findById(user_payload._id);
+              if(doctor){
+                 doctor.isAvailable = !doctor.isAvailable;
+                 const result = await doctor.save();
+                 return res.status(200).json(result);
+              }
+               return res.status(400).json({message:"Error while updating Profile."})
+        }
+    }
+    catch(err){
+        console.log(err);
+        return res.status(400).json(err);
+    }
+
+}
 
 // logout
+export const doctorLogout = async(req,res)=>{
+       res.cookie('jwt','',{maxAge:1});
+       res.redirect('/')
+}

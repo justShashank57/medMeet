@@ -5,10 +5,10 @@ const doctorSchema = new Schema({
     email:{type:String,required:true},
     password:{type:String,required:true},
     phone:{type:String,required:true},
-    speciality:{type:String,required:true},
-    pincode:{type:String,required:true},
-    address:{type:String,required:true},
-    hospital:{type:String,required:true},
+    speciality:{type:String},
+    pincode:{type:String},
+    address:{type:String},
+    hospital:{type:String},
     appointments:[{
       type:Schema.Types.ObjectId,
       ref:'appointment'

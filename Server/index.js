@@ -11,6 +11,9 @@ const startServer = async()=>{
    try{
         await ConnectDB(process.env.MONGODB_URL);
         await App(app);
+        app.get('/',(req,res)=>{
+           res.send("Hello from server.")
+        })
         app.listen(PORT,()=>{
           console.log(`Listening to Port : ${PORT}`);
         })
