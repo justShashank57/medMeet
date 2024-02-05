@@ -21,6 +21,9 @@ export const createDoctor = async(req,res) => {
     try{
         const {name,email,password,phone,speciality,pincode,address,hospital} = req.body;
         const existingDoctor = await findDoctor("",email);
+        if(existingDoctor){
+            return res.status(400).json({message:"User already exists."});
+        }
         //    generate hash
         const salt = await generateSalt();
         // generate hash
