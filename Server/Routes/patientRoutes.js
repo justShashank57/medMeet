@@ -1,9 +1,10 @@
 import express from "express";
+import { patientLogin, patientSignup } from "../controllers/patientController.js";
 
 const router = express.Router();
-// --------------------------------Login----------------------------
-router.post('/signup');
 // --------------------------------SignUp----------------------------
-router.post('/login');
+router.post('/signup',patientSignup);
+// --------------------------------Login----------------------------
+router.post('/login',patientLogin);
 
 export {router as patientRoute};

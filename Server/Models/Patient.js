@@ -5,12 +5,11 @@ const patientSchema = new Schema({
     email:{type:String,required:true},
     password:{type:String,required:true},
     phone:{type:String,required:true},
-    gender:{type:String,required:true},
-    age:{type:String,required:true},
-    pincode:{type:String,required:true},
-    address:{type:String,required:true},
+    gender:{type:String},
+    age:{type:String},
+    pincode:{type:String},
+    address:{type:String},
     photo:{type:String},
-    rating:{type:Number},
     appointments:[{
         type:Schema.Types.ObjectId,
         ref:'appointment'
