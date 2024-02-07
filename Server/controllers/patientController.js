@@ -106,8 +106,48 @@ export const patientLogin = async(req,res)=>{
 }
 
 // view Profile
+export const patientProfile = async(req,res)=>{
+       try{
+           const user_payload = req.user;
+           if(user_payload){
+              const userId = user_payload._id;
+              const patient = await Patient.findById(userId);
+              if(patient){
+                 return res.status(200).json(patient);
+              }
+              return res.status(400).json({message:"User doesn't exist."});
+           }
+           return res.status(400).json({message:"Error fetching user Profile."});
+       }
+       catch(err){
+           return res.status(400).json(err);
+       }
+}
 
 // update Profile
+export const updatePatientProfile = async(req,res)=>{
+    try{
+        const user_payload = req.user;
+        if(user_payload){
+           const {gender,age,pincode,address} = req.body;
+           const id = user_payload._id;
+           const profile = await Patient.findById(id);
+           if(profile){
+              profile.gender = gender;
+              profile.age = age;
+              profile.pincode = pincode;
+              profile.address = address;
+              const udpatedUser = await profile.save();
+              return res.status(200).json(udpatedUser);
+           }
+           return res.status(400).json({message:"Error in updating User Profile."})
+        }
+    }
+    catch(err){
+        console.log(err);
+        return res.status(400).json(err);
+    }
+}
 
 // view doctors
 
