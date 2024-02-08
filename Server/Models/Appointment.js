@@ -5,8 +5,9 @@ const appointmentSchema = new Schema({
       patientId:{type:String,required:true},
       appointmentId:{type:String,required:true},
       date:{type:String,required:true},
-      status:{type:String,required:true}, //(e.g., confirmed, pending, canceled).
+      status:{type:String,required:true}, //(e.g., confirmed, pending, cancelled).
       duration:{type:String,required:true},
+      confirmed:{type:Boolean,required:true},
       reason:{type:String}, //(e.g., consultation, follow-up, procedure).
       notes:{type:String} //any remarks by doctor
 },{

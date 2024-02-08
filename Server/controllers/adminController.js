@@ -7,7 +7,7 @@ export const findDoctor = async(doctorId,email) =>{
                return await Doctor.findOne({email});
            }
            else{
-              return await Doctor.findOne({doctorId});
+              return await Doctor.findById(doctorId);
            }
        }
        catch(err){

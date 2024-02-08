@@ -1,6 +1,8 @@
 import { Patient } from "../Models/Patient.js";
 import validator from "validator";
 import { generateHash,generateSalt,createToken,validatePassword } from "../utility/passUtility.js";
+import { findDoctor, getDoctor, getDoctors } from "./adminController.js";
+import { Appointment } from "../Models/Appointment.js";
 
 const maxAge = 3*24*60*60;
 
@@ -150,11 +152,52 @@ export const updatePatientProfile = async(req,res)=>{
 }
 
 // view doctors
+export const viewDoctors = async(req,res)=>{
+       return getDoctors(req,res);
+}
+export const getDoctorById = async(req,res)=>{
+       return getDoctor(req,res);
+}
 
 // book appointment
+export const createAppointment = async(req,res)=>{
+      try{
+          const patient_payload = req.user;
+          if(patient_payload){
+             const patientId = patient_payload._id;
+             const appointment_id = `${Math.floor((Math.random()*9000)+1000)}`;
+             const {doctorId,date,duration} = req.body;
+             const appointment = await Appointment.create({
+                   doctorId:doctorId,
+                   patientId:patientId,
+                   appointmentId:appointment_id,
+                   date:date,
+                   duration:duration,
+                   confirmed:false,
+                   status:"Pending",
+                   reason:"",
+                   notes:""
+             })
+             if(appointment){
+                const doctor = await findDoctor(doctorId);
+                const patient = await Patient.findById(patientId);
+                
+                doctor.appointments.push(appointment);
+                patient.appointments.push(appointment);
+                await doctor.save();
+                await patient.save();
+                return res.status(200).json(appointment);
+             }
+          }
+          return res.status(400).json({message:"Can not Process Appointment."});
+      }
+      catch(err){
+           return res.status(400).json(err);
+      }
+}
 
 // view appointments
 
-// view appointment detail
+// view appointment detail by id
 
 // logout
