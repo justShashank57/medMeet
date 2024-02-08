@@ -197,7 +197,39 @@ export const createAppointment = async(req,res)=>{
 }
 
 // view appointments
+export const viewAppointments = async(req,res)=>{
+       try{
+        const user_payload = req.user;
+        if(user_payload){
+           const patient = await Patient.findById(user_payload._id).populate("appointments");
+           if(patient){
+               const appointments = patient.appointments;
+               console.log(appointments);
+               if(appointments){
+                  return res.status(200).json(appointments);
+               }
+           }
+        }
+        return res.status(400).json({message:"Error while fetching Appointments."});
+        }
+       catch(err){
+           return res.status(400).json(err);
+       }
+}
 
 // view appointment detail by id
-
-// logout
+export const getAppointmentByID = async(req,res)=>{
+       const id = req.params.id;
+       try{
+           if(id){
+                 const appointment = await Appointment.findById(id);
+                 if(appointment){
+                    return res.status(200).json(appointment);
+                 }
+           }
+           return res.status(400).json({message:"Error while fetching Appointment details."})
+       }
+       catch(err){
+           return res.status(err);
+       }
+}

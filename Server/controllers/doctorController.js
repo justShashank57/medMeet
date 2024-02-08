@@ -1,3 +1,4 @@
+import { Appointment } from "../Models/Appointment.js";
 import { Doctor } from "../Models/doctor.js";
 import { createToken, generateHash, generateSalt, validatePassword } from "../utility/passUtility.js";
 import { findDoctor } from "./adminController.js";
@@ -139,10 +140,51 @@ export const updateProfile = async(req,res) =>{
 }
 
 // view appointments
+export const getAppointments = async(req,res)=>{
+    try{
+        const user_payload = req.user;
+        if(user_payload){
+           const patient = await Doctor.findById(user_payload._id).populate("appointments");
+           if(patient){
+               const appointments = patient.appointments;
+               console.log(appointments);
+               if(appointments){
+                  return res.status(200).json(appointments);
+               }
+           }
+        }
+        return res.status(400).json({message:"Error while fetching Appointments."});
+        }
+    catch(err){
+        return res.status(400).json(err);
+    }
+}
 
-// view appointment detail
-
-// update appointment status
+// confirm appointment
+export const confirmAppointment = async (req, res) => {
+    try {
+        const user_payload = req.user;
+        const appointments = (await Doctor.findById(user_payload._id).populate("appointments")).appointments;
+        const id = req.params.id;
+        if (id) {
+            const appointment = await Appointment.findById(id);
+            // now check whether appointment is in appointments array
+            const isAppointmentExist = appointments.some(appt => appt._id.toString() === id);
+            if (isAppointmentExist) {
+                appointment.confirmed = !appointment.confirmed;
+                const result = await appointment.save();
+                if (result) {
+                    return res.status(200).json(result);
+                }
+            } else {
+                return res.status(404).json({ message: "Appointment not found." });
+            }
+        }
+        return res.status(400).json({ message: "Error while changing status." });
+    } catch (err) {
+        return res.status(400).json(err);
+    }
+}
 
 // isAvailable
 export const updateService = async(req,res)=>{
@@ -166,7 +208,7 @@ export const updateService = async(req,res)=>{
 }
 
 // logout
-export const doctorLogout = async(req,res)=>{
+export const logout = async(req,res)=>{
        res.cookie('jwt','',{maxAge:1});
        res.redirect('/')
 }

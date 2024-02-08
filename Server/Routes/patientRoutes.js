@@ -1,6 +1,7 @@
 import express from "express";
-import { createAppointment, getDoctorById, patientLogin, patientProfile, patientSignup, updatePatientProfile, viewDoctors } from "../controllers/patientController.js";
+import { createAppointment, getAppointmentByID, getDoctorById, patientLogin, patientProfile, patientSignup, updatePatientProfile, viewAppointments, viewDoctors } from "../controllers/patientController.js";
 import { requireAuth } from "../middlewares/auth.js";
+import { logout } from "../controllers/doctorController.js";
 
 const router = express.Router();
 // --------------------------------SignUp----------------------------
@@ -17,8 +18,13 @@ router.patch('/profile',updatePatientProfile);
 router.get('/getDoctors',viewDoctors);
 // --------------------------------view doctors by id--------------------------
 router.get('/getDoctor/:id',getDoctorById);
-// --------------------------------view doctors by id--------------------------
+// --------------------------------create appointment--------------------------
 router.post('/create-appointment',createAppointment);
-
+// --------------------------------view appointments--------------------------
+router.get('/appointments',viewAppointments);
+// --------------------------------view appointment by ID--------------------------x
+router.get('/appointment/:id',getAppointmentByID);
+// --------------------------------Logout--------------------------x
+router.get('/logout',logout);
 
 export {router as patientRoute};
