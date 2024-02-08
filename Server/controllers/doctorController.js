@@ -164,14 +164,41 @@ export const getAppointments = async(req,res)=>{
 export const confirmAppointment = async (req, res) => {
     try {
         const user_payload = req.user;
-        const appointments = (await Doctor.findById(user_payload._id).populate("appointments")).appointments;
         const id = req.params.id;
+        const appointments = (await Doctor.findById(user_payload._id).populate("appointments")).appointments;
         if (id) {
             const appointment = await Appointment.findById(id);
             // now check whether appointment is in appointments array
             const isAppointmentExist = appointments.some(appt => appt._id.toString() === id);
             if (isAppointmentExist) {
                 appointment.confirmed = !appointment.confirmed;
+                const result = await appointment.save();
+                if (result) {
+                    return res.status(200).json(result);
+                }
+            } else {
+                return res.status(404).json({ message: "Appointment not found." });
+            }
+        }
+        return res.status(400).json({ message: "Error while changing status." });
+    } catch (err) {
+        return res.status(400).json(err);
+    }
+}
+
+// update appointment status
+export const updateAppointmentStatus = async(req,res)=>{
+    try {
+        const user_payload = req.user;
+        const {status,notes,appointmentId} = req.body;
+        if (user_payload) {
+            const appointments = (await Doctor.findById(user_payload._id).populate("appointments")).appointments;
+            const appointment = await Appointment.findOne({appointmentId:appointmentId});
+            // now check whether appointment is in appointments array
+            const isAppointmentExist = appointments.some(appt => appt.appointmentId === appointmentId);
+            if (isAppointmentExist) {
+                appointment.status = status;
+                appointment.notes = notes;
                 const result = await appointment.save();
                 if (result) {
                     return res.status(200).json(result);

@@ -1,5 +1,5 @@
 import express from "express";
-import { confirmAppointment, doctorLogin, doctorProfile, doctorSignup, getAppointments, logout, updateProfile, updateService } from "../controllers/doctorController.js";
+import { confirmAppointment, doctorLogin, doctorProfile, doctorSignup, getAppointments, logout, updateAppointmentStatus, updateProfile, updateService } from "../controllers/doctorController.js";
 import { requireAuth } from "../middlewares/auth.js";
 import { getAppointmentByID } from "../controllers/patientController.js";
 
@@ -22,6 +22,9 @@ router.get('/confirm-appointment/:id',confirmAppointment);
 
 // --------------------------------view Appointments----------------------------
 router.get('/appointments',getAppointments);
+
+// --------------------------------change status----------------------------
+router.post('/update-status',updateAppointmentStatus);
 
 // --------------------------------view Appointment by ID----------------------------
 router.get('/appointment/:id',getAppointmentByID);
