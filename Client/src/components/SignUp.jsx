@@ -6,28 +6,21 @@ export default function SignUp(){
     const navigate = useNavigate();
     async function handleSubmit(event){
         event.preventDefault();
-        
         const name = document.getElementById("name").value;
         const email = document.getElementById("email").value;
-        const age = document.getElementById("age").value;
+        const phone = document.getElementById("phone").value;
         const password = document.getElementById("password").value;
-        const identity = document.getElementById("identity").value;
-        const gender = document.getElementById("gender").value;
         
-        if (name && email && age && password && identity && gender) {
-          
+        if (name && email && phone && password) {
           const formData = {
             name: name,
             email: email,
-            age: age,
             password: password,
-            identity: identity,
-            gender: gender,
+            phone: phone,
           };
           
-
           try {
-            const response = await fetch("http://localhost:5500/submit_form", {
+            const response = await fetch("http://localhost:5500/patient/signup", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -35,11 +28,14 @@ export default function SignUp(){
               body: JSON.stringify(formData),
             });
             if(response.ok){
+              const responseData = await response.json();
+              const token = responseData.token;
+              localStorage.setItem('jwt',token)
               navigate("/completed")
-              console.log(response);
             }
             else if(!response.ok) {
-              throw new Error("Network response was not ok");
+              const responseData = await response.json();
+              console.log(responseData.message);
             }
           
   
@@ -58,11 +54,11 @@ export default function SignUp(){
             <form action="/submit_form" onSubmit={handleSubmit} id="signUpForm" method="post">
                 <h3 id="hello">Create an <span id="welcome">Account</span></h3>
                 <input type="text" name="name" id="name" placeholder="Name"/>
-                <input type="text" name="email" id="email" placeholder="Email"/>
-                <input type="number" name="age" id="age" placeholder="Age"/>
+                <input type="email" name="email" id="email" placeholder="Email"/>
+                <input type="text" name="phone" id="phone" placeholder="Phone No."/>
                 <input type="password" name="password" id="password" placeholder="Password"/>
                 
-                <span id="select">
+                {/* <span id="select">
                    
                     <span className="options" style={{display:"flex"}}>Are you a:
                           <select name="identity" className="identity" id="identity">
@@ -78,7 +74,7 @@ export default function SignUp(){
                              </select>
                    </span> 
     
-                </span> 
+                </span>  */}
                 
                 <button type="submit" id="submitSignUp">Submit</button>
                 <p id="createAccount">Already have an Account? <Link to="/login" id="register">Login</Link></p>

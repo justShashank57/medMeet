@@ -56,14 +56,14 @@ export const patientSignup = async(req,res)=>{
             salt:salt
         })
         if(patient){
-            console.log(patient)
+            // console.log(patient)
             const token_payload = {
                   _id:patient.id,
                   email:patient.email,
                   phone:patient.phone
             }
             const token = await createToken(token_payload);
-            res.cookie('jwt',token,{httpOnly:true,maxAge:maxAge*1000});
+            // res.cookie('jwt',token,{httpOnly:true,maxAge:maxAge*1000});
             console.log("JWT cookie created.");
             return res.status(200).json({token:token,email:patient.email,name:patient.name});
         }
@@ -93,7 +93,7 @@ export const patientLogin = async(req,res)=>{
                  phone:existingPatient.phone
               }
               const token = await createToken(token_payload);
-              res.cookie('jwt',token,{httpOnly:true,maxAge:maxAge*1000});
+            //   res.cookie('jwt',token,{httpOnly:true,maxAge:maxAge*1000});
               console.log("JWT cookie created.");
               return res.status(200).json({token:token,email:existingPatient.email,name:existingPatient.name});
            } 

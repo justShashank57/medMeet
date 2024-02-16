@@ -1,7 +1,25 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import Table from "./bookingsTable";
-export default function Profile({user,setUser}){
+export default async function Profile({user,setUser}){
+    try{
+        console.log("USER: ",user);
+        const token = localStorage.getItem('jwt');
+        const response = await fetch('http://localhost:5500/patient/profile',{
+               method:"GET",
+               headers:{
+                  "Content-Type":"application/json",
+                  "Authorization":`Bearer ${token}`
+               }
+        })
+        if(response.ok){
+             const resposeData = await response.json();
+             console.log(resposeData);
+        }
+    }
+    catch(err){
+        console.log(err);
+    }
     const navigate = useNavigate();
     function logout(){
         setUser(null);
@@ -12,9 +30,9 @@ export default function Profile({user,setUser}){
         <div id="profileRoot">
             <div id="left">
                <img id="profileImg" src="pic1.png" />
-               <h3>{user.name}, {user.age}.</h3>
-               <p style={{marginTop:"0"}}>{user.gender}</p>
-               <p style={{marginTop:"0"}}>{user.email}</p>
+               <h3>{user.token}, {user.token}.</h3>
+               <p style={{marginTop:"0"}}>{user.token}</p>
+               <p style={{marginTop:"0"}}>{user.token}</p>
                <div id="logOut" onClick={logout}>Logout</div>
             </div>
 
