@@ -8,7 +8,7 @@ export default function DoctorCard(props){
     }
        return(
             <div className="docCard">
-                <img src={props.obj.photo} className="cardImg"/>
+                <img src={props.obj.photo || "docImg.avif"} className="cardImg"/>
                 <h3 className="docName">{props.obj.name}</h3>
                 <span className="specArrow">
                     <span className="speciality">{props.obj.specialty}</span>

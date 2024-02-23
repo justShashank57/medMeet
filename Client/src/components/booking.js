@@ -1,26 +1,29 @@
 import React from "react";
 
-export default async function book(patient_id,patientName,docName,docMail,Date,Time){
-      
-      
+export default async function book(_id,date,time){
       try{
-              const response = await fetch("http://localhost:5500/book",{
+              const token = localStorage.getItem('jwt');
+              const response = await fetch("http://localhost:5500/patient/create-appointment",{
               method:"POST",
               headers:{
-                  "Content-Type":"application/json"
+                  "Content-Type":"application/json",
+                  "Authorization":`Bearer ${token}`
               },
               body:JSON.stringify({
-                   patient_id:patient_id,
-                   patientName:patientName,
-                   docName:docName,
-                   docMail:docMail,
-                   Date:Date,
-                   Time:Time,
+                   doctorId:_id,
+                   date:date,
+                   time:time,
               })
             })
-            const result = await response.json();
-            console.log("API RESPONSE :", result.user)
-            return result.user;
+            if(response.ok){
+              const result = await response.json();
+              if(result){
+                 console.log(result);
+                 alert("Appointment Booked!");
+              }
+            }
+            else alert("Please Enter all Details.")
+            return;
       }
       catch(error){
         console.error("Error fetching Booking response:", error);

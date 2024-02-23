@@ -1,10 +1,27 @@
 import React from "react";
-import doctorsData from "../data/doctors";
 import DoctorCard from "../components/doctorCard";
 import Appointment from "./Appointment";
 export default function Doctors(){
     const[selected,setSelected] = React.useState(null);
-    const elements = doctorsData.map((obj)=>{
+    const[doctors,setDoctors] = React.useState([]);
+    React.useEffect(()=>{
+         async function fetchDoctors(){
+                 const token = localStorage.getItem('jwt');
+                 const response = await fetch("http://localhost:5500/patient/getDoctors",{
+                    method:"GET",
+                    headers:{
+                        "Content-Type":"application/json",
+                        "Authorization":`Bearer ${token}`
+                    }
+                 })
+                 if(response.ok){
+                    let responseData = await response.json();
+                    setDoctors(responseData);
+                 }
+         }
+         if(doctors.length<1) fetchDoctors();
+    },[])
+    const elements = doctors.map((obj)=>{
         return(
             <DoctorCard obj={obj} setSelected={setSelected}/>
         )
@@ -14,7 +31,7 @@ export default function Doctors(){
         <div id="doctorsRoot">
             {
                 selected ?
-                  <Appointment setSelected={setSelected} email={selected.email} img={selected.photo} name={selected.name} speciality={selected.specialty} hospital={selected.hospital}/>
+                  <Appointment doctor={selected}  setSelected={setSelected}/>
                   :
                   <div id="docBox">
                        {elements}

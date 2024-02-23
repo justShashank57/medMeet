@@ -9,13 +9,14 @@ router.post('/signup',patientSignup);
 // --------------------------------Login----------------------------
 router.post('/login',patientLogin);
 
+// --------------------------------view doctors----------------------------
+router.get('/getDoctors',viewDoctors);
+
 router.use(requireAuth)
 // --------------------------------view Profile----------------------------
 router.get('/profile',patientProfile);
 // --------------------------------update Profile----------------------------
 router.patch('/profile',updatePatientProfile);
-// --------------------------------view doctors----------------------------
-router.get('/getDoctors',viewDoctors);
 // --------------------------------view doctors by id--------------------------
 router.get('/getDoctor/:id',getDoctorById);
 // --------------------------------create appointment--------------------------

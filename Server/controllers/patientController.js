@@ -94,7 +94,7 @@ export const patientLogin = async(req,res)=>{
               }
               const token = await createToken(token_payload);
             //   res.cookie('jwt',token,{httpOnly:true,maxAge:maxAge*1000});
-              console.log("JWT cookie created.");
+              console.log("JWT Token created.");
               return res.status(200).json({token:token,email:existingPatient.email,name:existingPatient.name});
            } 
            else return res.status(200).json({message:"Wrong Password."});
@@ -166,13 +166,14 @@ export const createAppointment = async(req,res)=>{
           if(patient_payload){
              const patientId = patient_payload._id;
              const appointment_id = `${Math.floor((Math.random()*9000)+1000)}`;
-             const {doctorId,date,duration} = req.body;
+             const {doctorId,date,time} = req.body;
              const appointment = await Appointment.create({
                    doctorId:doctorId,
                    patientId:patientId,
                    appointmentId:appointment_id,
                    date:date,
-                   duration:duration,
+                   time:time,
+                   duration:"30",
                    confirmed:false,
                    status:"Pending",
                    reason:"",

@@ -8,34 +8,26 @@ import GetService from "./Pages/getService";
 import Profile from "./components/profile";
 import Completed from "./components/completed"
 import { BrowserRouter as Router,Route, Routes } from "react-router-dom";
-import { createContext } from "react";
-
-export const UserContext = createContext(null);
-export const setUserContext = createContext(null);
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
 
 export default function App(){
-      const[user,setUser] = React.useState(null);
-     console.log("App component rendered with User :",user)
     return (
+        <Provider store={store}>
         <div>
                <Router>
-                   <UserContext.Provider value={user}>
-                   <setUserContext.Provider value={setUser}>
-
-                   <Navbar user={user} setUser={setUser}/>
-   
+                   <Navbar/>
                    <Routes>
                       <Route exact path="/" element={<FakeRoot/>}/>
                       <Route exact path="/completed" element={<Completed/>}/>
-                      <Route path="/login" element={<Login setUser={setUser}/>}/>
+                      <Route path="/login" element={<Login/>}/>
                       <Route path="/signUp" element={<SignUp/>}/>
                       <Route path="/doctors" element={<Doctors/>}/>
                       <Route path="/services" element={<GetService/>}/>
-                      <Route path="/profile" element={<Profile user={user} setUser={setUser}/>}/>
+                      <Route path="/profile" element={<Profile/>}/>
                    </Routes>
-                  </setUserContext.Provider>
-                 </UserContext.Provider>
                </Router>  
         </div>
+        </Provider>
     )
 }

@@ -1,31 +1,23 @@
-import { useContext } from 'react';
-import { UserContext, setUserContext } from '../App';
 import React from 'react'
 import book from '../components/booking';
 
-function Appointment({img,name,speciality,hospital,setSelected,email}) {
-  const user = useContext(UserContext);
-  const setUser = useContext(setUserContext);
-  const docName = name;
+function Appointment({doctor,setSelected}) {
+
   function back(){
     setSelected(null)
   }
-  
+
+ const {_id,name,img,speciality,hospital} = doctor;
+ const token = localStorage.getItem('jwt');
+ 
  async function handleBook(){
-    if(user){
-       const {_id,name} = user;
-       var d = document.getElementById("day");
-       var day = d.options[d.selectedIndex].text;
+    if(token){
+       var date = document.getElementById("date").value;
 
        var t = document.getElementById("time");
        var time = t.options[t.selectedIndex].text;
 
-       const updatedUser = await book(_id,name,docName,email,day,time);
-
-       console.log("APPOINTMENT PAGE: ",updatedUser);
-       await setUser(updatedUser)
-       alert("Appointment Booked !")
-      //  console.log(updatedUser)
+       await book(_id,date,time);
     }
     else{
       alert("Please Login First !")
@@ -60,19 +52,19 @@ function Appointment({img,name,speciality,hospital,setSelected,email}) {
                 <div>
                   <p>Available Slots :</p>
                   <div style={{display:"flex",justifyContent:"center",gap:"1rem",paddingTop:"1rem",paddingBottom:"1rem"}}>
-                          <select name="day" id="day">
+                          {/* <select name="day" id="day">
                               <option value="monday">Monday</option>
                               <option value="tuesday">Tuesday</option>
                               <option value="wednesday">Wednesday</option>
-                          </select>
-        
+                          </select> */}
+                         <input name='date' id='date' type="date" />
+
                           <select name="time" id="time">
                               <option value="monday">11:00 AM</option>
                               <option value="tuesday">12:00 AM</option>
                               <option value="wednesday">01:00 PM</option>
                           </select>
                   </div>
-            
                 </div>
                  
                 <div id='book' onClick={handleBook}>Book Appointment</div>

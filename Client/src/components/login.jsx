@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-export default function Login(props){
+export default function Login(){
     const navigate = useNavigate();
     async function handleLogin(event){
           event.preventDefault();
@@ -16,7 +16,8 @@ export default function Login(props){
             })
             if(response.ok){
                const responseData = await response.json();
-               props.setUser(responseData);
+            //    console.log("From Login: ",responseData);
+
                const token = responseData.token;
                localStorage.setItem('jwt',token);
                console.log("User logged in")

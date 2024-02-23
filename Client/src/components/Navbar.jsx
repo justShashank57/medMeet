@@ -1,28 +1,16 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { a } from "react-router-dom";
 import { Link } from "react-router-dom";
-export default function Navbar({user}){
+import { useSelector } from "react-redux";
+export default function Navbar(){
+    const user = useSelector((state)=>state.user.value);
     const[clickedPage,setClickedPage] = React.useState(0);
-        
+    const token = localStorage.getItem('jwt');
         function handleClick(event){
             let key = parseInt(event.target.getAttribute('data-key'));
             setClickedPage(key);
         }
         
-    //     document.querySelectorAll('.smooth-scroll').forEach(anchor => {
-    //        anchor.addEventListener('click', function (e) {
-    //        e.preventDefault();
-           
-    //        const target = document.querySelector(this.getAttribute('href'));
-    //        const offsetTop = target.offsetTop;
-           
-    //        window.scrollTo({
-    //          top: offsetTop,
-    //          behavior: 'smooth'
-    //        });
-    //      });
-    //    });
     return (
         <nav>
             <img src="heart.png" alt="heart" id="heart"/>
@@ -42,7 +30,7 @@ export default function Navbar({user}){
                 </motion.li>
             </ul>
               {
-                 (user) ?
+                 (token) ?
                  <Link to="/profile"><img src="pic1.png" id="icon" /></Link>
                  :
                  <Link className="link" id="login" to="/login">Login</Link>
