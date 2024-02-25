@@ -1,8 +1,10 @@
 import React from "react";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { updateToken } from "../redux/slices/tokenSlice";
 export default function SignUp(){
-
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     async function handleSubmit(event){
         event.preventDefault();
@@ -30,7 +32,7 @@ export default function SignUp(){
             if(response.ok){
               const responseData = await response.json();
               const token = responseData.token;
-              localStorage.setItem('jwt',token)
+              dispatch(updateToken(token));
               navigate("/completed")
             }
             else if(!response.ok) {

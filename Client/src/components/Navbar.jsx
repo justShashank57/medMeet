@@ -3,9 +3,8 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 export default function Navbar(){
-    const user = useSelector((state)=>state.user.value);
     const[clickedPage,setClickedPage] = React.useState(0);
-    const token = localStorage.getItem('jwt');
+    const token = useSelector((state)=>state.token.value);
         function handleClick(event){
             let key = parseInt(event.target.getAttribute('data-key'));
             setClickedPage(key);

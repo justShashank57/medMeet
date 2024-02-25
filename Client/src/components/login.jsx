@@ -1,7 +1,11 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {useDispatch} from "react-redux";
+import { updateToken,deleteToken } from "../redux/slices/tokenSlice";
+
 export default function Login(){
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     async function handleLogin(event){
           event.preventDefault();
           try{
@@ -19,7 +23,7 @@ export default function Login(){
             //    console.log("From Login: ",responseData);
 
                const token = responseData.token;
-               localStorage.setItem('jwt',token);
+               dispatch(updateToken(token));
                console.log("User logged in")
                alert("User Logged in.")
                navigate("/");

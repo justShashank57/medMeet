@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import {useSelector,useDispatch} from "react-redux"
 import Table from "./bookingsTable";
 import { changeUser, deleteUser } from "../redux/slices/userSlice";
+import { deleteToken } from "../redux/slices/tokenSlice";
 export default function Profile(){
     const user = useSelector((state)=>state.user);
     // console.log("User from selector",user);
     const dispatch = useDispatch();
+    const token = useSelector((state)=>state.token.value);
 
     React.useEffect(()=>{
             // console.log("USER UPDATED: ", user.value)
@@ -14,7 +16,6 @@ export default function Profile(){
               async function fetchProfile(){
                 try{
                     // console.log("USER from profile: ",user);
-                    const token = localStorage.getItem('jwt');
                     const response = await fetch('http://localhost:5500/patient/profile',{
                            method:"GET",
                            headers:{
@@ -38,7 +39,7 @@ export default function Profile(){
 
     function logout(){
         dispatch(deleteUser());
-        localStorage.removeItem('jwt');
+        dispatch(deleteToken());
         navigate("/");
         alert("Logged out successfully!")
     }
