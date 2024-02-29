@@ -22,7 +22,10 @@ export default async function book(_id,date,time){
                  alert("Appointment Booked!");
               }
             }
-            else alert("Please Enter all Details.")
+            else if(!response.ok){
+              const result = await response.json();
+              alert(result.message)
+            }
             return;
       }
       catch(error){

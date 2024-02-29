@@ -1,5 +1,5 @@
 import { Appointment } from "../Models/Appointment.js";
-import { Doctor } from "../Models/doctor.js";
+import { Doctor } from "../Models/Doctor.js";
 import { createToken, generateHash, generateSalt, validatePassword } from "../utility/passUtility.js";
 import { findDoctor } from "./adminController.js";
 import validator from "validator";

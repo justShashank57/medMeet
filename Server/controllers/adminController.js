@@ -1,4 +1,4 @@
-import { Doctor } from "../Models/doctor.js"
+import { Doctor } from "../Models/Doctor.js"
 import { generateHash, generateSalt } from "../utility/passUtility.js";
 
 export const findDoctor = async(doctorId,email) =>{

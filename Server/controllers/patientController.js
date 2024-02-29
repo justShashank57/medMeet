@@ -167,6 +167,8 @@ export const createAppointment = async(req,res)=>{
              const patientId = patient_payload._id;
              const appointment_id = `${Math.floor((Math.random()*9000)+1000)}`;
              const {doctorId,date,time} = req.body;
+             if(!date) return res.status(400).json({message:"Please provide Date of Appointment."});
+             if(!time) return res.status(400).json({message:"Please provide Time of Appointment."});
              const appointment = await Appointment.create({
                    doctorId:doctorId,
                    patientId:patientId,
