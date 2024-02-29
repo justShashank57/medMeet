@@ -7,7 +7,7 @@ export default function Doctors(){
     React.useEffect(()=>{
          async function fetchDoctors(){
                  const token = localStorage.getItem('jwt');
-                 const response = await fetch("http://localhost:5500/patient/getDoctors",{
+                 const response = await fetch("https://medmeet-1.onrender.com/patient/getDoctors",{
                     method:"GET",
                     headers:{
                         "Content-Type":"application/json",

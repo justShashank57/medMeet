@@ -22,7 +22,7 @@ export default function SignUp(){
           };
           
           try {
-            const response = await fetch("http://localhost:5500/patient/signup", {
+            const response = await fetch("https://medmeet-1.onrender.com/patient/signup", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",

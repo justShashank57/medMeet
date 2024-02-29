@@ -11,7 +11,7 @@ export default function Login(){
           try{
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
-            const response = await fetch("http://localhost:5500/patient/login",{
+            const response = await fetch("https://medmeet-1.onrender.com/patient/login",{
               method:"post",
               headers:{
                   "Content-Type":"application/json",

@@ -3,7 +3,7 @@ import React from "react";
 export default async function book(_id,date,time){
       try{
               const token = localStorage.getItem('jwt');
-              const response = await fetch("http://localhost:5500/patient/create-appointment",{
+              const response = await fetch("https://medmeet-1.onrender.com/patient/create-appointment",{
               method:"POST",
               headers:{
                   "Content-Type":"application/json",

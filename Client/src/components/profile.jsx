@@ -16,7 +16,7 @@ export default function Profile(){
               async function fetchProfile(){
                 try{
                     // console.log("USER from profile: ",user);
-                    const response = await fetch('http://localhost:5500/patient/profile',{
+                    const response = await fetch('https://medmeet-1.onrender.com/patient/profile',{
                            method:"GET",
                            headers:{
                               "Content-Type":"application/json",
