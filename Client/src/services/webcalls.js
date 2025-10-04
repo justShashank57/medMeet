@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5500';
+const API_BASE_URL = 'https://medmeet-1.onrender.com';
+// const API_BASE_URL = 'http://localhost:5500';
 
 // Get token from localStorage
 const getAuthToken = () => localStorage.getItem('jwt');
