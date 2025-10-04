@@ -2,9 +2,11 @@ import React from 'react'
 import book from '../components/booking';
 import { useAppointments } from '../hooks/useAPI';
 import { InlineSpinner } from '../components/LoadingSpinner';
+import { useToast } from '../components/Toast';
 
 function Appointment({doctor,setSelected}) {
   const { bookAppointment, loading } = useAppointments();
+  const { addToast } = useToast();
 
   function back(){
     setSelected(null)
@@ -25,7 +27,10 @@ function Appointment({doctor,setSelected}) {
        }
     }
     else{
-      alert("Please Login First !")
+      addToast({
+        message: "Please Login First !",
+        type: "warning"
+      });
     }
   }
 

@@ -6,12 +6,14 @@ import { updateToken } from "../redux/slices/tokenSlice";
 import { updateUserIdentity } from "../redux/slices/identitySlice";
 import { useAuth } from "../hooks/useAPI";
 import { InlineSpinner } from "./LoadingSpinner";
+import { useToast } from "./Toast";
 import api from "../services/webcalls";
 
 export default function SignUp(){
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { signup, loading } = useAuth();
+    const { addToast } = useToast();
     
     async function handleSubmit(event){
         event.preventDefault();
@@ -23,7 +25,10 @@ export default function SignUp(){
         const gender = document.getElementById("gender").value;
         
         if (!name || !email || !phone || !password || !identity || !gender) {
-          alert("Please fill all the required fields.");
+          addToast({
+            message: "Please fill all the required fields.",
+            type: "warning"
+          });
           return;
         }
 
