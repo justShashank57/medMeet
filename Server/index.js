@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from "express";
 import ConnectDB from "./services/connectDB.js";
 import App from './services/expressApp.js';
@@ -8,6 +9,7 @@ const startServer = async()=>{
   const app = express();
   const PORT = config.PORT;
    try{
+        console.log('connection string: ', config.MONGODB_URL)
         await ConnectDB(config.MONGODB_URL);
         await App(app);
         app.get('/',(req,res)=>{
