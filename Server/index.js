@@ -1,15 +1,14 @@
 import express from "express";
 import ConnectDB from "./services/connectDB.js";
 import App from './services/expressApp.js';
-import * as dotenv from "dotenv";
+import { config } from "./config.js";
 
-dotenv.config();
 // Start the server
 const startServer = async()=>{
   const app = express();
-  const PORT  = process.env.PORT;
+  const PORT = config.PORT;
    try{
-        await ConnectDB(process.env.MONGODB_URL);
+        await ConnectDB(config.MONGODB_URL);
         await App(app);
         app.get('/',(req,res)=>{
            res.send("Hello from server.")

@@ -4,7 +4,7 @@ export const requireAuth = async(req,res,next)=>{
        const finalToken = token.split(' ')[1];
        if(finalToken){
            try{
-               const decodedToken = await jwt.verify(finalToken,process.env.JWT_SECRET);
+               const decodedToken = await jwt.verify(finalToken,process.env.JWT_SECRET || "your_jwt_secret_key_here_change_this_in_production");
                if(decodedToken){
                    req.user = decodedToken;
                    console.log("Decoded Token: ",decodedToken);

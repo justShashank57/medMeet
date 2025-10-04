@@ -5,6 +5,7 @@ const doctorSchema = new Schema({
     email:{type:String,required:true},
     password:{type:String,required:true},
     phone:{type:String,required:true},
+    gender:{type:String,required:true},
     speciality:{type:String},
     pincode:{type:String},
     address:{type:String},

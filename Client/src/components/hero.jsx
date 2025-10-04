@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
+
 export default function Hero(){
     return (
         <div id="hero">
@@ -7,7 +9,9 @@ export default function Hero(){
                     We help Patients<br/>live a healthy, <br/>longer life.
                 </h1>
                 <p>At MedMeet, we are dedicated to providing you with reliable and accessible medical information. Our platform offers a wide range of expert-reviewed articles, resources, and tools to empower you to make informed decisions about your health.</p>
-                <div id="reqButton">Request an Appointment</div>
+                <Link to="/doctors" style={{ textDecoration: 'none' }}>
+                  <div id="reqButton">Request an Appointment</div>
+                </Link>
                 <div id="stats">
                     <div id="num">
                         <span className="yes exp">30+</span>

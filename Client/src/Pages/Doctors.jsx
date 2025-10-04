@@ -1,26 +1,31 @@
 import React from "react";
 import DoctorCard from "../components/doctorCard";
 import Appointment from "./Appointment";
+import { useDoctors } from "../hooks/useAPI";
+import { LoadingSpinner } from "../components/LoadingSpinner";
+import api from "../services/webcalls";
+
 export default function Doctors(){
     const[selected,setSelected] = React.useState(null);
     const[doctors,setDoctors] = React.useState([]);
+    const[isLoading, setIsLoading] = React.useState(true);
+    const { fetchDoctors: loadDoctors } = useDoctors();
+    
     React.useEffect(()=>{
-         async function fetchDoctors(){
-                 const token = localStorage.getItem('jwt');
-                 const response = await fetch("https://medmeet-1.onrender.com/patient/getDoctors",{
-                    method:"GET",
-                    headers:{
-                        "Content-Type":"application/json",
-                        "Authorization":`Bearer ${token}`
-                    }
-                 })
-                 if(response.ok){
-                    let responseData = await response.json();
-                    setDoctors(responseData);
+         async function loadData(){
+                 setIsLoading(true);
+                 try {
+                     const responseData = await loadDoctors(() => api.patient.getDoctors());
+                     if (responseData) {
+                       setDoctors(responseData);
+                     }
+                 } catch(error) {
+                     console.error("Error loading doctors:", error);
                  }
+                 setIsLoading(false);
          }
-         if(doctors.length<1) fetchDoctors();
-    },[])
+         loadData();
+    },[loadDoctors])
     const elements = doctors.map((obj)=>{
         return(
             <DoctorCard obj={obj} setSelected={setSelected}/>
@@ -34,7 +39,15 @@ export default function Doctors(){
                   <Appointment doctor={selected}  setSelected={setSelected}/>
                   :
                   <div id="docBox">
-                       {elements}
+                       {isLoading ? (
+                         <LoadingSpinner size="large" text="Loading doctors..." />
+                       ) : elements.length > 0 ? (
+                         elements
+                       ) : (
+                         <p style={{textAlign:"center", fontSize:"1.2rem", margin:"2rem"}}>
+                           No doctors available at the moment
+                         </p>
+                       )}
                   </div>
             } 
         </div>

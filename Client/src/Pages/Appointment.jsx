@@ -1,7 +1,10 @@
 import React from 'react'
 import book from '../components/booking';
+import { useAppointments } from '../hooks/useAPI';
+import { InlineSpinner } from '../components/LoadingSpinner';
 
 function Appointment({doctor,setSelected}) {
+  const { bookAppointment, loading } = useAppointments();
 
   function back(){
     setSelected(null)
@@ -13,11 +16,13 @@ function Appointment({doctor,setSelected}) {
  async function handleBook(){
     if(token){
        var date = document.getElementById("date").value;
-
        var t = document.getElementById("time");
        var time = t.options[t.selectedIndex].text;
 
-       await book(_id,date,time);
+       const success = await bookAppointment(() => book(_id,date,time));
+       if (success) {
+         setSelected(null); // Go back to doctors list
+       }
     }
     else{
       alert("Please Login First !")
@@ -67,7 +72,19 @@ function Appointment({doctor,setSelected}) {
                   </div>
                 </div>
                  
-                <div id='book' onClick={handleBook}>Book Appointment</div>
+                <div id='book' onClick={handleBook} style={{ 
+                  opacity: loading ? 0.7 : 1, 
+                  cursor: loading ? 'not-allowed' : 'pointer' 
+                }}>
+                  {loading ? (
+                    <>
+                      <InlineSpinner size="small" />
+                      Booking...
+                    </>
+                  ) : (
+                    "Book Appointment"
+                  )}
+                </div>
 
               </div>
              

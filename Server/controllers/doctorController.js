@@ -13,7 +13,7 @@ export const validateEmail = async(email)=>{
 // signup
 export const doctorSignup = async(req,res) => {
     try{
-        const {name,email,password,phone} = req.body;
+        const {name,email,password,phone,gender} = req.body;
         const email_validation = await validateEmail(email);
         if(!email_validation){
             return res.status(400).json({message:"Enter a valid mail address."});
@@ -32,6 +32,7 @@ export const doctorSignup = async(req,res) => {
             email:email,
             password:hashedPass,
             phone:phone,
+            gender:gender,
             speciality:"",
             pincode:"",
             address:"",

@@ -18,5 +18,5 @@ export const validatePassword = async(enteredPassword,savedHash,salt) => {
 
 // create JWT token
 export const createToken = async(payload)=>{
-       return await jwt.sign(payload,process.env.JWT_SECRET,{expiresIn:'3D'});
+       return await jwt.sign(payload,process.env.JWT_SECRET || "your_jwt_secret_key_here_change_this_in_production",{expiresIn:'3D'});
 }

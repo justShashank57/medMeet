@@ -3,50 +3,49 @@ import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { updateToken } from "../redux/slices/tokenSlice";
+import { updateUserIdentity } from "../redux/slices/identitySlice";
+import { useAuth } from "../hooks/useAPI";
+import { InlineSpinner } from "./LoadingSpinner";
+import api from "../services/webcalls";
+
 export default function SignUp(){
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { signup, loading } = useAuth();
+    
     async function handleSubmit(event){
         event.preventDefault();
         const name = document.getElementById("name").value;
         const email = document.getElementById("email").value;
         const phone = document.getElementById("phone").value;
         const password = document.getElementById("password").value;
+        const identity = document.getElementById("identity").value;
+        const gender = document.getElementById("gender").value;
         
-        if (name && email && phone && password) {
-          const formData = {
-            name: name,
-            email: email,
-            password: password,
-            phone: phone,
-          };
-          
-          try {
-            const response = await fetch("https://medmeet-1.onrender.com/patient/signup", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(formData),
-            });
-            if(response.ok){
-              const responseData = await response.json();
-              const token = responseData.token;
-              dispatch(updateToken(token));
-              navigate("/completed")
-            }
-            else if(!response.ok) {
-              const responseData = await response.json();
-              alert(responseData.message);
-            }
-          
-  
-          } catch (error) {
-            console.error("Error fetching data:", error);
-          }
-
-        } else {
+        if (!name || !email || !phone || !password || !identity || !gender) {
           alert("Please fill all the required fields.");
+          return;
+        }
+
+        const formData = {
+          name: name,
+          email: email,
+          password: password,
+          phone: phone,
+          gender: gender
+        };
+        
+        const apiCall = identity === "Doctor" 
+          ? () => api.auth.doctorSignup(formData)
+          : () => api.auth.patientSignup(formData);
+        
+        const responseData = await signup(apiCall, identity);
+        
+        if (responseData) {
+          const token = responseData.token;
+          dispatch(updateToken(token));
+          dispatch(updateUserIdentity(identity));
+          navigate("/completed");
         }
       };
 
@@ -60,7 +59,7 @@ export default function SignUp(){
                 <input type="text" name="phone" id="phone" placeholder="Phone No."/>
                 <input type="password" name="password" id="password" placeholder="Password"/>
                 
-                {/* <span id="select">
+                <span id="select">
                    
                     <span className="options" style={{display:"flex"}}>Are you a:
                           <select name="identity" className="identity" id="identity">
@@ -76,9 +75,18 @@ export default function SignUp(){
                              </select>
                    </span> 
     
-                </span>  */}
+                </span> 
                 
-                <button type="submit" id="submitSignUp">Submit</button>
+                <button type="submit" id="submitSignUp" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <InlineSpinner size="small" />
+                      Registering...
+                    </>
+                  ) : (
+                    "Submit"
+                  )}
+                </button>
                 <p id="createAccount">Already have an Account? <Link to="/login" id="register">Login</Link></p>
             </form>
         </div>

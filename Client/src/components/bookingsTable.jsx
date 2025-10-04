@@ -1,18 +1,35 @@
 import React from "react";
+import api from "../services/webcalls";
 
-export default function Table({arr}){
+export default function Table({arr, identity}){
     
-    function handleDelete(){
-          console.log("Delete function triggered")
+    function handleDelete(appointmentId){
+          console.log("Delete function triggered for appointment:", appointmentId);
+          // Implement appointment cancellation logic here
+    }
+
+    function handleConfirm(appointmentId) {
+        console.log("Confirm function triggered for appointment:", appointmentId);
+        // Implement appointment confirmation logic here
     }
 
     const rows = arr.map((obj)=>{
         return(
-             <tr>
-                <td>{obj.name}</td>
+             <tr key={obj._id}>
+                <td>{obj.doctorId?.name || obj.patientId?.name || "N/A"}</td>
                 <td>{obj.date}</td>
                 <td>{obj.time}</td>
-                <td><img id="delete" src="delete.png" onClick={handleDelete}/></td>
+                <td>{obj.status}</td>
+                <td>
+                    {identity === "Doctor" ? (
+                        <>
+                            <button onClick={() => handleConfirm(obj._id)}>Confirm</button>
+                            <button onClick={() => handleDelete(obj._id)}>Cancel</button>
+                        </>
+                    ) : (
+                        <button onClick={() => handleDelete(obj._id)}>Cancel</button>
+                    )}
+                </td>
             </tr>
         )        
     })
@@ -20,10 +37,11 @@ export default function Table({arr}){
             <>
             <table>
                 <tr>
-                    <th>Doctor</th>
-                    <th>Day</th>
-                    <th>Slot</th>
-                    <th>Cancel</th>
+                    <th>{identity === "Doctor" ? "Patient" : "Doctor"}</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                 </tr>
                 {arr && rows}
             </table>
