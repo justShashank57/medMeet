@@ -2,11 +2,11 @@ import mongoose,{Schema} from "mongoose";
 
 const doctorSchema = new Schema({
     name:{type:String,required:true},
-    email:{type:String,required:true},
+    email:{type:String,required:true,unique:true,index:true},
     password:{type:String,required:true},
     phone:{type:String,required:true},
     gender:{type:String,required:true},
-    speciality:{type:String},
+    speciality:{type:String,index:true},
     pincode:{type:String},
     address:{type:String},
     hospital:{type:String},

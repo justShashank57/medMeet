@@ -1,0 +1,42 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+
+  server:
+    build: ./Server
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    environment:
+      NODE_ENV: production
+      PORT: 5500
+      MONGODB_URL: mongodb://mongo:27017/med-meet
+      JWT_SECRET: ${JWT_SECRET}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:3000}
+      ADMIN_API_KEY: ${ADMIN_API_KEY}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+    ports:
+      - "5500:5500"
+
+  client:
+    build:
+      context: ./Client
+      args:
+        REACT_APP_API_BASE_URL: ${REACT_APP_API_BASE_URL:-http://localhost:5500}
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "3000:80"
+
+volumes:
+  mongo_data:

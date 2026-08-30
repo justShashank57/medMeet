@@ -1,13 +1,8 @@
 import mongoose from "mongoose";
+import { logger } from "../utility/logger.js";
 
 export default async function ConnectDB(url){
      mongoose.set('strictQuery',true);
-     try{
-       await mongoose.connect(url)
-      .then(console.log("MongoDB connected!"))
-     }
-     catch(err){
-      console.log("failed to Connect to DB.");
-     //  console.log(error);
-     }
+     await mongoose.connect(url);
+     logger.info("MongoDB connected!");
 }

@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { config } from "../config.js";
 
 // generate salt for hashing
 export const generateSalt = async() => {
@@ -11,12 +12,12 @@ export const generateHash = async(password,salt) => {
        return bcrypt.hash(password,salt);
 }
 
-// validate password
-export const validatePassword = async(enteredPassword,savedHash,salt) => {
-       return await generateHash(enteredPassword,salt) === savedHash;
+// validate password (constant-time compare via bcrypt, salt is already embedded in savedHash)
+export const validatePassword = async(enteredPassword,savedHash) => {
+       return await bcrypt.compare(enteredPassword,savedHash);
 }
 
 // create JWT token
 export const createToken = async(payload)=>{
-       return await jwt.sign(payload,process.env.JWT_SECRET || "your_jwt_secret_key_here_change_this_in_production",{expiresIn:'3D'});
+       return jwt.sign(payload,config.JWT_SECRET,{expiresIn:'3d'});
 }

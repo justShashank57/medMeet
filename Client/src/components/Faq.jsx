@@ -4,9 +4,9 @@ import QuestionBox from "./question";
 
 export default function Faq(){
     
-    const elements = Questions.map((obj)=>{
+    const elements = Questions.map((obj,index)=>{
         return(
-              <QuestionBox obj={obj}/>
+              <QuestionBox key={index} obj={obj}/>
         )
     })
 

@@ -1,4 +1,5 @@
 import React from "react";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import Navbar from "./components/Navbar";
 import FakeRoot from "./FakeRoot";
 import Login from "./components/login";
@@ -16,26 +17,30 @@ import { store } from "./redux/store";
 
 export default function App(){
     return (
-        <Provider store={store}>
-          <ToastProvider>
-            <LoadingProvider>
-              <div>
-                     <Router>
-                         <Navbar/>
-                         <Routes>
-                            <Route exact path="/" element={<FakeRoot/>}/>
-                            <Route exact path="/completed" element={<Completed/>}/>
-                            <Route path="/login" element={<Login/>}/>
-                            <Route path="/signUp" element={<SignUp/>}/>
-                            <Route path="/doctors" element={<Doctors/>}/>
-                            <Route path="/services" element={<GetService/>}/>
-                            <Route path="/profile" element={<Profile/>}/>
-                            <Route path="/contact" element={<Contact/>}/>
-                         </Routes>
-                     </Router>  
-              </div>
-            </LoadingProvider>
-          </ToastProvider>
-        </Provider>
+        <ErrorBoundary>
+          <Provider store={store}>
+            <ToastProvider>
+              <LoadingProvider>
+                <div>
+                       <Router>
+                           <Navbar/>
+                           <ErrorBoundary>
+                             <Routes>
+                                <Route exact path="/" element={<FakeRoot/>}/>
+                                <Route exact path="/completed" element={<Completed/>}/>
+                                <Route path="/login" element={<Login/>}/>
+                                <Route path="/signUp" element={<SignUp/>}/>
+                                <Route path="/doctors" element={<Doctors/>}/>
+                                <Route path="/services" element={<GetService/>}/>
+                                <Route path="/profile" element={<Profile/>}/>
+                                <Route path="/contact" element={<Contact/>}/>
+                             </Routes>
+                           </ErrorBoundary>
+                       </Router>
+                </div>
+              </LoadingProvider>
+            </ToastProvider>
+          </Provider>
+        </ErrorBoundary>
     )
 }

@@ -56,14 +56,14 @@ cd Server
 # Install dependencies
 npm install
 
-# Create .env file with following variables:
-PORT=5500
-MONGODB_URL=mongodb://localhost:27017/med-meet
-JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
+# Copy the example env file and fill in real values
+cp .env.example .env
 
-# Start server
-npm start
+# Start server (with auto-restart)
+npm run dev
 ```
+
+See [Environment Variables](#-environment-variables) below for what each `.env` key does.
 
 ### 2. Client Setup
 
@@ -81,6 +81,17 @@ npm start
 The application will be available at:
 - **Frontend**: http://localhost:3000
 - **Backend**: http://localhost:5500
+- **API docs (Swagger UI)**: http://localhost:5500/api-docs
+
+### 3. Or run everything with Docker
+
+```bash
+JWT_SECRET=$(node -e "console.log(require('crypto').randomBytes(48).toString('hex'))") \
+ADMIN_API_KEY=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))") \
+docker compose up --build
+```
+
+This starts MongoDB, the API server, and an nginx-served production build of the client.
 
 ## 📁 Project Structure
 
@@ -98,26 +109,55 @@ med-meet/
 ├── Server/                 # Node.js Backend
 │   ├── controllers/        # Route controllers
 │   ├── Models/            # Database models
-│   ├── Routes/            # API routes
-│   ├── services/          # Core services
-│   ├── middlewares/       # Custom middleware
-│   ├── utility/           # Utility functions
+│   ├── Routes/            # API routes (with Swagger JSDoc annotations)
+│   ├── services/          # expressApp assembly, DB connection, swagger spec
+│   ├── middlewares/       # auth, validation, rate limiting, sanitization, error handling
+│   ├── utility/           # logger, mailer, error tracking, password/JWT helpers
+│   ├── tests/             # node:test + supertest integration/unit tests
+│   ├── Dockerfile, .dockerignore
 │   ├── config.js          # Configuration
 │   └── setup-guide.md     # Backend setup guide
+├── docker-compose.yml      # mongo + server + client
+├── .github/workflows/ci.yml # Lint, test, build on push/PR
 └── README.md              # This file
 ```
+
+## 🏗️ Architecture
+
+```
+┌─────────────┐        HTTPS/JSON        ┌──────────────────┐        ┌─────────────┐
+│   React SPA │ ───────────────────────▶ │  Express API      │ ─────▶ │  MongoDB    │
+│  (Client/)  │ ◀─────────────────────── │  (Server/)         │ ◀───── │  Atlas      │
+└─────────────┘   Bearer JWT in header   └──────────────────┘        └─────────────┘
+                                                  │
+                                                  ├─▶ winston + morgan (logs/)
+                                                  ├─▶ Sentry (optional, via SENTRY_DSN)
+                                                  └─▶ nodemailer (optional, via SMTP_*)
+```
+
+- The client is a Create React App SPA; it never talks to MongoDB directly, only to the Express API over JSON.
+- Auth is stateless: login/signup return a JWT, the client stores it and sends it back as `Authorization: Bearer <token>`. There are no server-side sessions or auth cookies.
+- `Server/services/expressApp.js` is the single place the middleware stack (helmet, CORS, rate limiting, sanitization, routing, error handling) is assembled — see that file to trace a request end-to-end.
+- Admin write endpoints (`POST/DELETE /admin/doctor*`) are gated by a shared `x-admin-key` header rather than a full admin-account system, since none exists yet (see [Known gaps](#-known-gaps--recommended-next-steps)).
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
-Create a `.env` file in the Server directory:
+Copy `Server/.env.example` to `Server/.env` and fill in real values:
 
-```env
-PORT=5500
-MONGODB_URL=mongodb://localhost:27017/med-meet
-JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
-```
+| Variable | Required | Purpose |
+|---|---|---|
+| `MONGODB_URL` | Yes | MongoDB connection string |
+| `JWT_SECRET` | Yes in production (dev falls back to an insecure default with a warning) | Signs auth tokens — generate with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` |
+| `PORT` | No (default 5500) | API port |
+| `NODE_ENV` | No (default development) | Enables stricter error responses and disables the JWT_SECRET fallback in `production` |
+| `CLIENT_URL` | No (default http://localhost:3000) | Allowed CORS origin |
+| `ADMIN_API_KEY` | No, but admin write endpoints return 503 until set | Shared secret required in the `x-admin-key` header to create/delete doctors |
+| `SMTP_HOST`/`SMTP_PORT`/`SMTP_USER`/`SMTP_PASS`/`MAIL_FROM` | No | Enables appointment confirmation/status emails; booking still works without them, emails are just skipped |
+| `SENTRY_DSN` | No | Enables error reporting to Sentry; errors are always logged locally regardless |
+
+For the client, copy `Client/.env.example` to `Client/.env` (or rely on the committed `Client/.env.development`) — `REACT_APP_API_BASE_URL` points the SPA at your local API instead of the deployed one.
 
 ### API Endpoints
 
@@ -128,24 +168,41 @@ JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
 - `POST /doctor/login` - Doctor login
 
 #### Patient Endpoints
+- `GET /patient/getDoctors` - List doctors (public; supports `?page&limit&search&speciality&isAvailable`)
 - `GET /patient/profile` - Get patient profile
 - `PATCH /patient/profile` - Update patient profile
-- `GET /patient/getDoctors` - Get all doctors
-- `POST /patient/create-appointment` - Book appointment
+- `GET /patient/getDoctor/:id` - Get a single doctor
+- `POST /patient/create-appointment` - Book appointment (rejects past times and double-booked slots)
 - `GET /patient/appointments` - Get patient appointments
+- `GET /patient/appointment/:id` - Get one appointment
+- `PATCH /patient/appointment/:id/cancel` - Cancel an appointment (must be ≥2 hours out)
 
 #### Doctor Endpoints
 - `GET /doctor/profile` - Get doctor profile
 - `PATCH /doctor/profile` - Update doctor profile
 - `GET /doctor/appointments` - Get doctor appointments
-- `GET /doctor/confirm-appointment/:id` - Confirm appointment
-- `POST /doctor/update-status` - Update appointment status
+- `GET /doctor/confirm-appointment/:id` - Toggle appointment confirmation
+- `POST /doctor/update-status` - Update appointment status/notes
 - `GET /doctor/service` - Toggle availability
 
 #### Admin Endpoints
-- `GET /admin/doctors` - Get all doctors
+*(`POST`/`DELETE` require an `x-admin-key` header matching `ADMIN_API_KEY`)*
+- `GET /admin/doctors` - List doctors (paginated)
+- `GET /admin/doctor/:id` - Get a doctor
 - `POST /admin/doctor` - Create doctor
 - `DELETE /admin/doctor/:id` - Delete doctor
+
+Full request/response schemas are documented interactively at `/api-docs` (Swagger UI) once the server is running.
+
+## 🗄️ Database Schema
+
+Three Mongoose collections in MongoDB (`Server/Models/`):
+
+**Patient** — `name`, `email` (unique), `password` (bcrypt hash), `salt`, `phone`, `gender`, `age`, `pincode`, `address`, `photo`, `appointments` (refs → Appointment). `password`/`salt` are stripped from JSON responses.
+
+**Doctor** — same identity fields as Patient plus `speciality` (indexed), `hospital`, `rating`, `isAvailable`, `appointments` (refs → Appointment). `email` is unique; `gender` is required (Patient's is not).
+
+**Appointment** — `doctorId`, `patientId` (both plain string copies of the owning document's `_id`, indexed), `appointmentId` (a short human-readable code), `date`, `time`, `duration`, `status` (`Pending`/`Confirmed`/`Cancelled`/...), `confirmed`, `reason`, `notes`. A compound index on `(doctorId, date, time)` backs the double-booking check.
 
 ## 📱 Usage
 
@@ -165,11 +222,15 @@ JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
 
 ## 🔒 Security Features
 
-- JWT-based authentication
-- Password hashing with bcrypt
-- Protected routes and endpoints
-- Input validation and sanitization
-- CORS configuration
+- JWT-based authentication (Bearer token, no auth cookies → not vulnerable to CSRF)
+- Password hashing with bcrypt (constant-time compare via `bcrypt.compare`)
+- `helmet` security headers, CORS restricted to `CLIENT_URL`
+- Rate limiting on auth endpoints (brute-force mitigation) and globally
+- Request validation via `express-validator` (email format, password strength, phone format, Mongo ObjectId params)
+- Recursive stripping of `$`-prefixed/dotted keys from `body`/`params`/`query` (NoSQL operator injection defense)
+- Admin write endpoints gated by a shared `x-admin-key` secret
+- Centralized error handler that never leaks stack traces or raw driver errors in production
+- `JWT_SECRET` is refused as empty/default when `NODE_ENV=production` (the server won't start); `ADMIN_API_KEY` disables admin write endpoints (503) until it's set, in any environment
 
 ## 🌐 API Integration
 
@@ -208,12 +269,25 @@ This project is licensed under the MIT License.
 
 ## 🎯 Roadmap
 
+- [x] Email notifications (appointment booked/confirmed/status changed)
 - [ ] Payment integration
-- [ ] Email notifications
 - [ ] Real-time chat
 - [ ] Video consultation
 - [ ] Mobile app
-- [ ] Admin dashboard UI
+- [ ] Admin dashboard UI / real admin accounts
+
+## ⚠️ Known gaps & recommended next steps
+
+Deliberately not built in this pass, with the reasoning, so they're not mistaken for oversights:
+
+- **End-to-end tests** — no Cypress/Playwright suite yet. Unit + integration tests exist (`Server/tests`, `Client/src/**/*.test.js`); E2E is the next testing investment.
+- **API versioning (`/v1/...`)** — skipped since it'd be a breaking route change with no external consumers yet to protect. Add a version prefix before the API has consumers you can't coordinate with.
+- **Real-time updates (WebSocket)** — appointment status changes currently require a refetch; Socket.IO would need both server and client changes and its own test pass.
+- **File uploads (doctor/patient photos)** — `photo` fields exist on the schema but nothing writes to them; would need `multer` + storage (local disk or S3-compatible) + a client upload UI.
+- **Refresh tokens** — JWTs are long-lived (3 days) with no rotation/revocation. Fine for this app's risk profile today; revisit if you need shorter-lived sessions.
+- **Analytics** — needs a product decision (which vendor, what to track, privacy/consent policy) before wiring anything in.
+- **Database migrations / backup strategy** — Mongoose is schemaless at the DB level so there's nothing to migrate yet; backups are a MongoDB Atlas dashboard setting (enable continuous backups / point-in-time recovery there), not application code.
+- **Real admin accounts** — admin write endpoints are gated by a single shared `x-admin-key` secret rather than per-admin login, since no admin user model exists. Fine for a single operator; build out an Admin model + auth if you need multiple admins or an audit trail.
 
 ---
 

@@ -1,8 +1,8 @@
 import mongoose,{Schema} from "mongoose";
 
 const appointmentSchema = new Schema({
-      doctorId:{type:String,required:true},
-      patientId:{type:String,required:true},
+      doctorId:{type:String,required:true,index:true},
+      patientId:{type:String,required:true,index:true},
       appointmentId:{type:String,required:true},
       date:{type:String,required:true},
       time:{type:String,required:true},
@@ -20,6 +20,9 @@ const appointmentSchema = new Schema({
        timestamps:true
     }
 })
+
+// Speeds up the double-booking check (same doctor, date, time) done on every new booking.
+appointmentSchema.index({ doctorId:1, date:1, time:1 });
 
 const Appointment = mongoose.model('appointment',appointmentSchema);
 

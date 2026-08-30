@@ -3,24 +3,24 @@ import express from "express";
 import ConnectDB from "./services/connectDB.js";
 import App from './services/expressApp.js';
 import { config } from "./config.js";
+import { logger } from "./utility/logger.js";
+import { initErrorTracking } from "./utility/errorTracking.js";
 
 // Start the server
 const startServer = async()=>{
+  initErrorTracking();
   const app = express();
   const PORT = config.PORT;
    try{
-        console.log('connection string: ', config.MONGODB_URL)
         await ConnectDB(config.MONGODB_URL);
         await App(app);
-        app.get('/',(req,res)=>{
-           res.send("Hello from server.")
-        })
         app.listen(PORT,()=>{
-          console.log(`Listening to Port : ${PORT}`);
+          logger.info(`Listening on port ${PORT}`);
         })
    }
    catch(error){
-       console.log(error)
+       logger.error("Failed to start server", { error: error.message, stack: error.stack });
+       process.exit(1);
    }
 }
 

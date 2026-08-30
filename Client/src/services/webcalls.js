@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://medmeet-1.onrender.com';
-// const API_BASE_URL = 'http://localhost:5500';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://medmeet-1.onrender.com';
 
 // Get token from localStorage
 const getAuthToken = () => localStorage.getItem('jwt');
@@ -84,9 +83,10 @@ export const api = {
       }
     },
     
-    getDoctors: async () => {
+    getDoctors: async ({ search, speciality, page, limit = 100 } = {}) => {
       try {
         const response = await axios.get(`${API_BASE_URL}/patient/getDoctors`, {
+          params: { search, speciality, page, limit },
           headers: {
             Authorization: `Bearer ${getAuthToken()}`
           }
