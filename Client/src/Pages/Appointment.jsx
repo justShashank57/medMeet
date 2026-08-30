@@ -36,10 +36,10 @@ function Appointment({doctor,setSelected}) {
 
   return (
     <div id='appointRoot'>
-        <img onClick={back} src="arrow.svg" id='back'/>
+        <img onClick={back} src="arrow.svg" id='back' alt="Go back"/>
         <div id='appointLeft'>
             <div style={{display:"flex"}} id='leftUp'>
-                <img className='cardImg' src={img}/>
+                <img className='cardImg' src={img} alt={name}/>
                 <div id='specName'>
                   <div className='speciality'>{speciality}</div>
                   <h3 className='docName'>{name}</h3>
