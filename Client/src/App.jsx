@@ -9,6 +9,7 @@ import GetService from "./Pages/getService";
 import Profile from "./components/profile";
 import Completed from "./components/completed";
 import Contact from "./Pages/Contact";
+import Admin from "./Pages/Admin";
 import { ToastProvider } from "./components/Toast";
 import { LoadingProvider } from "./contexts/LoadingContext";
 import { BrowserRouter as Router,Route, Routes } from "react-router-dom";
@@ -34,6 +35,7 @@ export default function App(){
                                 <Route path="/services" element={<GetService/>}/>
                                 <Route path="/profile" element={<Profile/>}/>
                                 <Route path="/contact" element={<Contact/>}/>
+                                <Route path="/admin" element={<Admin/>}/>
                              </Routes>
                            </ErrorBoundary>
                        </Router>

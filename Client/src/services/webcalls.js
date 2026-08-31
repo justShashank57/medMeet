@@ -5,6 +5,13 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://medmeet-1.on
 // Get token from localStorage
 const getAuthToken = () => localStorage.getItem('jwt');
 
+// Admin key is kept in sessionStorage (cleared when the tab closes) since it's
+// a shared secret, not a per-user credential.
+const getAdminKey = () => sessionStorage.getItem('adminKey');
+const setAdminKey = (key) => sessionStorage.setItem('adminKey', key);
+const clearAdminKey = () => sessionStorage.removeItem('adminKey');
+const hasAdminKey = () => Boolean(getAdminKey());
+
 // Export reusable API functions
 export const api = {
   // Auth functions
@@ -233,15 +240,21 @@ export const api = {
 
   // Admin functions
   admin: {
-    getDoctors: async () => {
+    setKey: setAdminKey,
+    clearKey: clearAdminKey,
+    hasKey: hasAdminKey,
+
+    getDoctors: async ({ page, limit = 100 } = {}) => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/admin/doctors`);
+        const response = await axios.get(`${API_BASE_URL}/admin/doctors`, {
+          params: { page, limit }
+        });
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
       }
     },
-    
+
     getDoctorById: async (doctorId) => {
       try {
         const response = await axios.get(`${API_BASE_URL}/admin/doctor/${doctorId}`);
@@ -250,19 +263,23 @@ export const api = {
         throw error.response?.data || error;
       }
     },
-    
+
     createDoctor: async (doctorData) => {
       try {
-        const response = await axios.post(`${API_BASE_URL}/admin/doctor`, doctorData);
+        const response = await axios.post(`${API_BASE_URL}/admin/doctor`, doctorData, {
+          headers: { 'x-admin-key': getAdminKey() }
+        });
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
       }
     },
-    
+
     deleteDoctor: async (doctorId) => {
       try {
-        const response = await axios.delete(`${API_BASE_URL}/admin/doctor/${doctorId}`);
+        const response = await axios.delete(`${API_BASE_URL}/admin/doctor/${doctorId}`, {
+          headers: { 'x-admin-key': getAdminKey() }
+        });
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
