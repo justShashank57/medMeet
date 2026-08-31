@@ -270,11 +270,12 @@ This project is licensed under the MIT License.
 ## 🎯 Roadmap
 
 - [x] Email notifications (appointment booked/confirmed/status changed)
+- [x] Admin dashboard UI (lightweight — see below)
 - [ ] Payment integration
 - [ ] Real-time chat
 - [ ] Video consultation
 - [ ] Mobile app
-- [ ] Admin dashboard UI / real admin accounts
+- [ ] Real admin accounts (per-admin login, audit trail)
 
 ## ⚠️ Known gaps & recommended next steps
 
@@ -288,6 +289,10 @@ Deliberately not built in this pass, with the reasoning, so they're not mistaken
 - **Analytics** — needs a product decision (which vendor, what to track, privacy/consent policy) before wiring anything in.
 - **Database migrations / backup strategy** — Mongoose is schemaless at the DB level so there's nothing to migrate yet; backups are a MongoDB Atlas dashboard setting (enable continuous backups / point-in-time recovery there), not application code.
 - **Real admin accounts** — admin write endpoints are gated by a single shared `x-admin-key` secret rather than per-admin login, since no admin user model exists. Fine for a single operator; build out an Admin model + auth if you need multiple admins or an audit trail.
+
+### Admin UI
+
+`/admin` in the client (not linked from the navbar — reach it by URL) is a minimal doctor-management page: enter the `ADMIN_API_KEY` value to unlock, then create or delete doctors. It's intentionally not full accounts — the key is kept in `sessionStorage` (cleared when the tab closes) and there's no way to distinguish one operator from another. Note the client can't validate the key without a real write attempt, so entering *any* non-empty value unlocks the page's UI; a wrong key is only caught (and bounces you back to the gate with an error) when you actually try to create or delete a doctor.
 
 ---
 
