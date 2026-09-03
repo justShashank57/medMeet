@@ -1,4 +1,5 @@
 import React from 'react'
+import { useSelector } from 'react-redux';
 import book from '../components/booking';
 import { useAppointments } from '../hooks/useAPI';
 import { InlineSpinner } from '../components/LoadingSpinner';
@@ -7,6 +8,7 @@ import { useToast } from '../components/Toast';
 function Appointment({doctor,setSelected}) {
   const { bookAppointment, loading } = useAppointments();
   const { addToast } = useToast();
+  const isLoggedIn = useSelector((state) => state.auth.value);
 
   function back(){
     setSelected(null)
@@ -27,10 +29,9 @@ function Appointment({doctor,setSelected}) {
   }
 
  const {_id,name,img,speciality,hospital} = doctor;
- const token = localStorage.getItem('jwt');
- 
+
  async function handleBook(){
-    if(token){
+    if(isLoggedIn){
        var date = document.getElementById("date").value;
        var t = document.getElementById("time");
        var time = t.options[t.selectedIndex].text;

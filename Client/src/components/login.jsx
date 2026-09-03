@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {useDispatch, useSelector} from "react-redux";
-import { updateToken,deleteToken } from "../redux/slices/tokenSlice";
+import {useDispatch} from "react-redux";
+import { setLoggedIn } from "../redux/slices/authSlice";
 import { updateUserIdentity } from "../redux/slices/identitySlice";
 import { useAuth } from "../hooks/useAPI";
 import { InlineSpinner } from "./LoadingSpinner";
@@ -10,7 +10,6 @@ import api from "../services/webcalls";
 export default function Login(){
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const identity = useSelector((state)=>state.identity.value);
     const { login, loading } = useAuth();
     
     async function handleLogin(event){
@@ -26,12 +25,10 @@ export default function Login(){
             : () => api.auth.patientLogin(credentials);
           
           const responseData = await login(apiCall);
-          
+
           if (responseData) {
-            const token = responseData.token;
-            dispatch(updateToken(token));
+            dispatch(setLoggedIn());
             dispatch(updateUserIdentity(loginIdentity));
-            console.log("User logged in");
             navigate("/");
           }
     }

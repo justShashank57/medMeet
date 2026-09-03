@@ -3,16 +3,16 @@ import { useNavigate } from "react-router-dom";
 import {useSelector,useDispatch} from "react-redux"
 import Table from "./bookingsTable";
 import { changeUser, deleteUser } from "../redux/slices/userSlice";
-import { deleteToken } from "../redux/slices/tokenSlice";
+import { setLoggedOut } from "../redux/slices/authSlice";
 import { clearUserIdentity } from "../redux/slices/identitySlice";
-import { useProfile, useAppointments, useAuth } from "../hooks/useAPI";
+import { useProfile, useAppointments } from "../hooks/useAPI";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { useToast } from "./Toast";
 import api from "../services/webcalls";
 export default function Profile(){
     const user = useSelector((state)=>state.user);
     const dispatch = useDispatch();
-    const token = useSelector((state)=>state.token.value);
+    const isLoggedIn = useSelector((state)=>state.auth.value);
     const identity = useSelector((state)=>state.identity.value);
     const [appointments, setAppointments] = React.useState([]);
     const { fetchProfile: getProfile, loading: profileLoading } = useProfile();
@@ -44,17 +44,25 @@ export default function Profile(){
                 }
             }
             
-            if(token && identity) {
+            if(isLoggedIn && identity) {
               loadProfile();
               loadAppointments();
             }
-        },[token, identity, getProfile, getAppointments])
-        
+        },[isLoggedIn, identity, getProfile, getAppointments])
+
     const navigate = useNavigate();
 
-    function logout(){
+    async function logout(){
+        // The JWT lives in an httpOnly cookie the browser controls, so it can
+        // only be cleared by asking the server to do it. Clear local state
+        // regardless of whether that call succeeds (e.g. session already expired).
+        try {
+            await api.auth.logout(identity);
+        } catch (err) {
+            // ignore - local state is cleared below either way
+        }
         dispatch(deleteUser());
-        dispatch(deleteToken());
+        dispatch(setLoggedOut());
         dispatch(clearUserIdentity());
         navigate("/");
         addToast({ message: "Logged out successfully!", type: 'success' });

@@ -5,7 +5,8 @@ jest.mock("axios", () => ({
     post: jest.fn(),
     get: jest.fn(),
     patch: jest.fn(),
-    delete: jest.fn()
+    delete: jest.fn(),
+    defaults: {}
 }));
 
 describe("webcalls api", () => {
@@ -39,8 +40,7 @@ describe("webcalls api", () => {
     });
 
     describe("patient.bookAppointment", () => {
-        test("sends the stored jwt as a bearer token", async () => {
-            localStorage.setItem("jwt", "my-jwt");
+        test("posts the appointment payload and relies on the httpOnly session cookie for auth", async () => {
             axios.post.mockResolvedValueOnce({ data: { _id: "appt1" } });
 
             const result = await api.patient.bookAppointment({ doctorId: "doc1", date: "2026-09-10", time: "11:00 AM" });
@@ -48,8 +48,7 @@ describe("webcalls api", () => {
             expect(result).toEqual({ _id: "appt1" });
             expect(axios.post).toHaveBeenCalledWith(
                 expect.stringContaining("/patient/create-appointment"),
-                { doctorId: "doc1", date: "2026-09-10", time: "11:00 AM" },
-                { headers: { Authorization: "Bearer my-jwt" } }
+                { doctorId: "doc1", date: "2026-09-10", time: "11:00 AM" }
             );
         });
 
@@ -86,5 +85,26 @@ describe("webcalls api", () => {
                 { headers: { "x-admin-key": "secret-key" } }
             );
         });
+    });
+
+    describe("module setup", () => {
+        test("enables withCredentials so the httpOnly session cookie is sent cross-origin", () => {
+            expect(axios.defaults.withCredentials).toBe(true);
+        });
+    });
+});
+
+describe("webcalls module load", () => {
+    const originalUrl = process.env.REACT_APP_API_BASE_URL;
+
+    afterEach(() => {
+        process.env.REACT_APP_API_BASE_URL = originalUrl;
+    });
+
+    test("throws instead of silently falling back to a hardcoded URL when unset", () => {
+        process.env.REACT_APP_API_BASE_URL = "";
+        jest.resetModules();
+
+        expect(() => require("./webcalls")).toThrow(/REACT_APP_API_BASE_URL is not set/);
     });
 });

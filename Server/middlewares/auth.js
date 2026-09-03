@@ -1,14 +1,16 @@
 import jwt from "jsonwebtoken";
 import { config } from "../config.js";
 import { logger } from "../utility/logger.js";
+import { AUTH_COOKIE_NAME } from "../utility/passUtility.js";
 
+// Browser clients authenticate via the httpOnly cookie set on login; the
+// Authorization header is still accepted for non-browser clients.
 export const requireAuth = (req, res, next) => {
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return res.status(401).json({ message: "Authentication required." });
-    }
+    const token = (authHeader && authHeader.startsWith("Bearer "))
+        ? authHeader.split(" ")[1]
+        : req.cookies?.[AUTH_COOKIE_NAME];
 
-    const token = authHeader.split(" ")[1];
     if (!token) {
         return res.status(401).json({ message: "Authentication required." });
     }

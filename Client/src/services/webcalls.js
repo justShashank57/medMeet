@@ -1,9 +1,17 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://medmeet-1.onrender.com';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-// Get token from localStorage
-const getAuthToken = () => localStorage.getItem('jwt');
+if (!API_BASE_URL) {
+  throw new Error(
+    'REACT_APP_API_BASE_URL is not set. Define it in your .env file (see .env.example) before starting or building the app.'
+  );
+}
+
+// The auth JWT lives in an httpOnly cookie set by the server (see
+// Server/utility/passUtility.js authCookieOptions) and is never readable by
+// client JS, so it is sent automatically once withCredentials is enabled.
+axios.defaults.withCredentials = true;
 
 // Admin key is kept in sessionStorage (cleared when the tab closes) since it's
 // a shared secret, not a per-user credential.
@@ -52,9 +60,11 @@ export const api = {
       }
     },
     
-    logout: async () => {
+    // identity selects which role's session cookie gets cleared server-side.
+    logout: async (identity = 'Patient') => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/patient/logout`);
+        const endpoint = identity === 'Doctor' ? 'doctor' : 'patient';
+        const response = await axios.get(`${API_BASE_URL}/${endpoint}/logout`);
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
@@ -66,90 +76,63 @@ export const api = {
   patient: {
     getProfile: async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/patient/profile`, {
-          headers: {
-            Authorization: `Bearer ${getAuthToken()}`
-          }
-        });
+        const response = await axios.get(`${API_BASE_URL}/patient/profile`);
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
       }
     },
-    
+
     updateProfile: async (profileData) => {
       try {
-        const response = await axios.patch(`${API_BASE_URL}/patient/profile`, profileData, {
-          headers: {
-            Authorization: `Bearer ${getAuthToken()}`
-          }
-        });
+        const response = await axios.patch(`${API_BASE_URL}/patient/profile`, profileData);
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
       }
     },
-    
+
     getDoctors: async ({ search, speciality, page, limit = 100 } = {}) => {
       try {
         const response = await axios.get(`${API_BASE_URL}/patient/getDoctors`, {
-          params: { search, speciality, page, limit },
-          headers: {
-            Authorization: `Bearer ${getAuthToken()}`
-          }
+          params: { search, speciality, page, limit }
         });
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
       }
     },
-    
+
     getDoctorById: async (doctorId) => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/patient/getDoctor/${doctorId}`, {
-          headers: {
-            Authorization: `Bearer ${getAuthToken()}`
-          }
-        });
+        const response = await axios.get(`${API_BASE_URL}/patient/getDoctor/${doctorId}`);
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
       }
     },
-    
+
     bookAppointment: async (appointmentData) => {
       try {
-        const response = await axios.post(`${API_BASE_URL}/patient/create-appointment`, appointmentData, {
-          headers: {
-            Authorization: `Bearer ${getAuthToken()}`
-          }
-        });
+        const response = await axios.post(`${API_BASE_URL}/patient/create-appointment`, appointmentData);
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
       }
     },
-    
+
     getAppointments: async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/patient/appointments`, {
-          headers: {
-            Authorization: `Bearer ${getAuthToken()}`
-          }
-        });
+        const response = await axios.get(`${API_BASE_URL}/patient/appointments`);
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
       }
     },
-    
+
     getAppointmentById: async (appointmentId) => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/patient/appointment/${appointmentId}`, {
-          headers: {
-            Authorization: `Bearer ${getAuthToken()}`
-          }
-        });
+        const response = await axios.get(`${API_BASE_URL}/patient/appointment/${appointmentId}`);
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
@@ -161,76 +144,52 @@ export const api = {
   doctor: {
     getProfile: async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/doctor/profile`, {
-          headers: {
-            Authorization: `Bearer ${getAuthToken()}`
-          }
-        });
+        const response = await axios.get(`${API_BASE_URL}/doctor/profile`);
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
       }
     },
-    
+
     updateProfile: async (profileData) => {
       try {
-        const response = await axios.patch(`${API_BASE_URL}/doctor/profile`, profileData, {
-          headers: {
-            Authorization: `Bearer ${getAuthToken()}`
-          }
-        });
+        const response = await axios.patch(`${API_BASE_URL}/doctor/profile`, profileData);
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
       }
     },
-    
+
     getAppointments: async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/doctor/appointments`, {
-          headers: {
-            Authorization: `Bearer ${getAuthToken()}`
-          }
-        });
+        const response = await axios.get(`${API_BASE_URL}/doctor/appointments`);
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
       }
     },
-    
+
     confirmAppointment: async (appointmentId) => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/doctor/confirm-appointment/${appointmentId}`, {
-          headers: {
-            Authorization: `Bearer ${getAuthToken()}`
-          }
-        });
+        const response = await axios.get(`${API_BASE_URL}/doctor/confirm-appointment/${appointmentId}`);
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
       }
     },
-    
+
     updateAppointmentStatus: async (appointmentData) => {
       try {
-        const response = await axios.post(`${API_BASE_URL}/doctor/update-status`, appointmentData, {
-          headers: {
-            Authorization: `Bearer ${getAuthToken()}`
-          }
-        });
+        const response = await axios.post(`${API_BASE_URL}/doctor/update-status`, appointmentData);
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
       }
     },
-    
+
     toggleAvailability: async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/doctor/service`, {
-          headers: {
-            Authorization: `Bearer ${getAuthToken()}`
-          }
-        });
+        const response = await axios.get(`${API_BASE_URL}/doctor/service`);
         return response.data;
       } catch (error) {
         throw error.response?.data || error;

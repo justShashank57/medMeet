@@ -1,6 +1,6 @@
 import { Appointment } from "../Models/Appointment.js";
 import { Doctor } from "../Models/Doctor.js";
-import { createToken, generateHash, generateSalt, validatePassword } from "../utility/passUtility.js";
+import { createToken, generateHash, generateSalt, validatePassword, AUTH_COOKIE_NAME, authCookieOptions } from "../utility/passUtility.js";
 import { findDoctor } from "./adminController.js";
 import { sendAppointmentStatusEmail } from "../utility/mailer.js";
 import { Patient } from "../Models/Patient.js";
@@ -40,6 +40,7 @@ export const doctorSignup = async(req,res,next) => {
               phone:doctor.phone
         }
         const token = await createToken(token_payload);
+        res.cookie(AUTH_COOKIE_NAME, token, authCookieOptions());
         return res.status(201).json({token:token,email:doctor.email,name:doctor.name});
     }
     catch(err){
@@ -61,6 +62,7 @@ export const doctorLogin = async(req,res,next)=>{
                     phone:existingDoctor.phone
                  }
                  const token = await createToken(token_payload);
+                 res.cookie(AUTH_COOKIE_NAME, token, authCookieOptions());
                  return res.status(200).json({token:token,email:existingDoctor.email,name:existingDoctor.name});
               }
               else return res.status(401).json({message:"Wrong Password."});
@@ -190,5 +192,7 @@ export const updateService = async(req,res,next)=>{
 
 // logout
 export const logout = async(req,res)=>{
+       const cookieOptions = authCookieOptions();
+       res.clearCookie(AUTH_COOKIE_NAME, { httpOnly: cookieOptions.httpOnly, secure: cookieOptions.secure, sameSite: cookieOptions.sameSite });
        return res.status(200).json({message:"Logged out."});
 }

@@ -1,5 +1,5 @@
 import { Patient } from "../Models/Patient.js";
-import { generateHash,generateSalt,createToken,validatePassword } from "../utility/passUtility.js";
+import { generateHash,generateSalt,createToken,validatePassword,AUTH_COOKIE_NAME,authCookieOptions } from "../utility/passUtility.js";
 import { findDoctor, getDoctor, getDoctors } from "./adminController.js";
 import { Appointment } from "../Models/Appointment.js";
 import { sendAppointmentBookedEmail } from "../utility/mailer.js";
@@ -55,6 +55,7 @@ export const patientSignup = async(req,res,next)=>{
                   phone:patient.phone
             }
             const token = await createToken(token_payload);
+            res.cookie(AUTH_COOKIE_NAME, token, authCookieOptions());
             return res.status(201).json({token:token,email:patient.email,name:patient.name});
         }
         return res.status(400).json({message:"Error with signup."});
@@ -78,6 +79,7 @@ export const patientLogin = async(req,res,next)=>{
                  phone:existingPatient.phone
               }
               const token = await createToken(token_payload);
+              res.cookie(AUTH_COOKIE_NAME, token, authCookieOptions());
               return res.status(200).json({token:token,email:existingPatient.email,name:existingPatient.name});
            }
            else return res.status(401).json({message:"Wrong Password."});

@@ -5,7 +5,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
-import tokenReducer from "../redux/slices/tokenSlice";
+import authReducer from "../redux/slices/authSlice";
 import identityReducer from "../redux/slices/identitySlice";
 import userReducer from "../redux/slices/userSlice";
 import { ToastProvider } from "./Toast";
@@ -15,7 +15,8 @@ jest.mock("axios", () => ({
     post: jest.fn(),
     get: jest.fn(),
     patch: jest.fn(),
-    delete: jest.fn()
+    delete: jest.fn(),
+    defaults: {}
 }));
 
 // react-router-dom v7's package export conditions aren't resolved correctly by
@@ -30,7 +31,7 @@ jest.mock("react-router-dom", () => ({
 
 function setup() {
     const store = configureStore({
-        reducer: { user: userReducer, token: tokenReducer, identity: identityReducer }
+        reducer: { user: userReducer, auth: authReducer, identity: identityReducer }
     });
 
     render(
@@ -73,7 +74,7 @@ describe("SignUp", () => {
                 gender: "Male"
             }
         );
-        expect(reduxStore.getState().token.value).toBe("jwt-token");
+        expect(reduxStore.getState().auth.value).toBe(true);
         expect(reduxStore.getState().identity.value).toBe("Patient");
     });
 
@@ -95,7 +96,7 @@ describe("SignUp", () => {
             expect.stringContaining("/doctor/signup"),
             expect.objectContaining({ name: "Dr. House" })
         );
-        expect(reduxStore.getState().token.value).toBe("doc-jwt");
+        expect(reduxStore.getState().auth.value).toBe(true);
         expect(reduxStore.getState().identity.value).toBe("Doctor");
     });
 
@@ -107,6 +108,6 @@ describe("SignUp", () => {
 
         expect(await screen.findByText(/please fill all the required fields/i)).toBeInTheDocument();
         expect(axios.post).not.toHaveBeenCalled();
-        expect(reduxStore.getState().token.value).toBeFalsy();
+        expect(reduxStore.getState().auth.value).toBe(false);
     });
 });

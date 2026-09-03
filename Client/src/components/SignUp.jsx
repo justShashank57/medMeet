@@ -2,7 +2,7 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { updateToken } from "../redux/slices/tokenSlice";
+import { setLoggedIn } from "../redux/slices/authSlice";
 import { updateUserIdentity } from "../redux/slices/identitySlice";
 import { useAuth } from "../hooks/useAPI";
 import { InlineSpinner } from "./LoadingSpinner";
@@ -47,8 +47,7 @@ export default function SignUp(){
         const responseData = await signup(apiCall, identity);
         
         if (responseData) {
-          const token = responseData.token;
-          dispatch(updateToken(token));
+          dispatch(setLoggedIn());
           dispatch(updateUserIdentity(identity));
           navigate("/completed");
         }

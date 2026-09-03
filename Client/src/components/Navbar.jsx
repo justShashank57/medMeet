@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 export default function Navbar(){
     const location = useLocation();
-    const token = useSelector((state)=>state.token.value);
+    const isLoggedIn = useSelector((state)=>state.auth.value);
     
     const getCurrentPage = () => {
         switch(location.pathname) {
@@ -35,7 +35,7 @@ export default function Navbar(){
                 </motion.li>
             </ul>
               {
-                 (token) ?
+                 (isLoggedIn) ?
                  <Link to="/profile" aria-label="View profile"><img src="pic1.png" id="icon" alt=""/></Link>
                  :
                  <Link className="link" id="login" to="/login">Login</Link>

@@ -116,6 +116,37 @@ describe("Patient login", () => {
       assert.equal(res.body.email, email);
     });
   });
+
+  describe("httpOnly cookie auth", () => {
+    test("login sets an httpOnly jwt cookie", async () => {
+      const res = await request(app).post("/patient/login").send({ email, password });
+      const setCookie = res.headers["set-cookie"] || [];
+      const jwtCookie = setCookie.find((c) => c.startsWith("jwt="));
+      assert.ok(jwtCookie, "expected a jwt cookie to be set");
+      assert.match(jwtCookie, /HttpOnly/i);
+    });
+
+    test("a request using only the session cookie (no Authorization header) reaches a protected route", async () => {
+      const agent = request.agent(app);
+      const login = await agent.post("/patient/login").send({ email, password });
+      assert.equal(login.status, 200);
+
+      const res = await agent.get("/patient/profile");
+      assert.equal(res.status, 200);
+      assert.equal(res.body.email, email);
+    });
+
+    test("logout clears the session cookie so the protected route is 401 afterwards", async () => {
+      const agent = request.agent(app);
+      await agent.post("/patient/login").send({ email, password });
+
+      const logoutRes = await agent.get("/patient/logout");
+      assert.equal(logoutRes.status, 200);
+
+      const res = await agent.get("/patient/profile");
+      assert.equal(res.status, 401);
+    });
+  });
 });
 
 describe("Doctor signup/login", () => {
