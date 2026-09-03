@@ -37,17 +37,20 @@ export default function Login(){
     }
     return(
         <div id="loginRoot">
-            <form id="loginForm" action="/loginForm" method="post">
+            <form id="loginForm" action="/loginForm" method="post" aria-label="Login form">
                 <h3 id="hello">Hello! <span id="welcome">Welcome</span> back.</h3>
-                <input type="text" id="email" name="email" placeholder="Email"/>
-                <input type="password" id="password" name="password" placeholder="Password"/>
-                
-                <select name="loginIdentity" id="loginIdentity" style={{margin: "10px 0", padding: "10px", borderRadius: "5px"}}>
+                <label htmlFor="email" className="sr-only">Email</label>
+                <input type="text" id="email" name="email" placeholder="Email" aria-label="Email"/>
+                <label htmlFor="password" className="sr-only">Password</label>
+                <input type="password" id="password" name="password" placeholder="Password" aria-label="Password"/>
+
+                <label htmlFor="loginIdentity" className="sr-only">Login as</label>
+                <select name="loginIdentity" id="loginIdentity" aria-label="Login as" style={{margin: "10px 0", padding: "10px", borderRadius: "5px"}}>
                     <option value="Patient">Login as Patient</option>
                     <option value="Doctor">Login as Doctor</option>
                 </select>
-                
-                <button type="submit" onClick={handleLogin} id="submitLogin" disabled={loading}>
+
+                <button type="submit" onClick={handleLogin} id="submitLogin" disabled={loading} aria-busy={loading}>
                   {loading ? (
                     <>
                       <InlineSpinner size="small" />

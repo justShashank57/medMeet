@@ -30,7 +30,7 @@ export function ToastProvider({ children }) {
 
 function ToastContainer({ toasts, removeToast }) {
   return (
-    <div className="toast-container">
+    <div className="toast-container" role="region" aria-label="Notifications">
       {toasts.map(toast => (
         <Toast key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
       ))}
@@ -69,9 +69,14 @@ function Toast({ toast, onClose }) {
   }, [toast.duration, onClose]);
 
   return (
-    <div className={`toast toast-${type}`} onClick={onClose}>
+    <div
+      className={`toast toast-${type}`}
+      onClick={onClose}
+      role={type === 'error' || type === 'warning' ? 'alert' : 'status'}
+      aria-live={type === 'error' || type === 'warning' ? 'assertive' : 'polite'}
+    >
       <div className="toast-content">
-        <div className="toast-icon">
+        <div className="toast-icon" aria-hidden="true">
           {type === 'success' && '✓'}
           {type === 'error' && '✕'}
           {type === 'warning' && '⚠'}
@@ -79,7 +84,7 @@ function Toast({ toast, onClose }) {
         </div>
         <div className="toast-message">{message}</div>
       </div>
-      <button className="toast-close" onClick={(e) => { e.stopPropagation(); onClose(); }}>
+      <button className="toast-close" aria-label="Dismiss notification" onClick={(e) => { e.stopPropagation(); onClose(); }}>
         ×
       </button>
       

@@ -17,31 +17,31 @@ export default function Navbar(){
     };
         
     return (
-        <nav>
-            <img src="heart.png" alt="heart" id="heart"/>
+        <nav aria-label="Main navigation">
+            <img src="heart.png" alt="" id="heart"/>
             <h3 id="medMeet">MedMeet</h3>
             <ul>
                 <motion.li whileHover={{scale:1.3}}>
-                <Link style={getCurrentPage()===0?{borderBottom:"1px solid #333333"}:{borderBottom:"none"}} className="link smooth-scroll" to="/">Home</Link>
+                <Link aria-current={getCurrentPage()===0?"page":undefined} style={getCurrentPage()===0?{borderBottom:"1px solid #333333"}:{borderBottom:"none"}} className="link smooth-scroll" to="/">Home</Link>
                 </motion.li>
                 <motion.li whileHover={{scale:1.3}}>
-                <Link style={getCurrentPage()===1?{borderBottom:"1px solid #333333"}:{borderBottom:"none"}} className="link smooth-scroll" to="/services">Services</Link>
+                <Link aria-current={getCurrentPage()===1?"page":undefined} style={getCurrentPage()===1?{borderBottom:"1px solid #333333"}:{borderBottom:"none"}} className="link smooth-scroll" to="/services">Services</Link>
                 </motion.li>
                 <motion.li  whileHover={{scale:1.3}}>
-                <Link style={getCurrentPage()===2?{borderBottom:"1px solid #333333"}:{borderBottom:"none"}} className="link smooth-scroll" to="/doctors">Find a Doctor</Link>
+                <Link aria-current={getCurrentPage()===2?"page":undefined} style={getCurrentPage()===2?{borderBottom:"1px solid #333333"}:{borderBottom:"none"}} className="link smooth-scroll" to="/doctors">Find a Doctor</Link>
                 </motion.li>
                 <motion.li  whileHover={{scale:1.3}}>
-                <Link style={getCurrentPage()===3?{borderBottom:"1px solid #333333"}:{borderBottom:"none"}} className="link smooth-scroll" to="/contact">Contact</Link>
+                <Link aria-current={getCurrentPage()===3?"page":undefined} style={getCurrentPage()===3?{borderBottom:"1px solid #333333"}:{borderBottom:"none"}} className="link smooth-scroll" to="/contact">Contact</Link>
                 </motion.li>
             </ul>
               {
                  (token) ?
-                 <Link to="/profile"><img src="pic1.png" id="icon" /></Link>
+                 <Link to="/profile" aria-label="View profile"><img src="pic1.png" id="icon" alt=""/></Link>
                  :
                  <Link className="link" id="login" to="/login">Login</Link>
               }
-               
+
         </nav>
-        
+
     )
 }

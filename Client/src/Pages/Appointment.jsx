@@ -12,6 +12,20 @@ function Appointment({doctor,setSelected}) {
     setSelected(null)
   }
 
+  function handleBackKeyDown(event){
+    if(event.key === "Enter" || event.key === " "){
+      event.preventDefault();
+      back();
+    }
+  }
+
+  function handleBookKeyDown(event){
+    if(event.key === "Enter" || event.key === " "){
+      event.preventDefault();
+      handleBook();
+    }
+  }
+
  const {_id,name,img,speciality,hospital} = doctor;
  const token = localStorage.getItem('jwt');
  
@@ -36,7 +50,7 @@ function Appointment({doctor,setSelected}) {
 
   return (
     <div id='appointRoot'>
-        <img onClick={back} src="arrow.svg" id='back' alt="Go back"/>
+        <img onClick={back} onKeyDown={handleBackKeyDown} role="button" tabIndex={0} src="arrow.svg" id='back' alt="Go back"/>
         <div id='appointLeft'>
             <div style={{display:"flex"}} id='leftUp'>
                 <img className='cardImg' src={img} alt={name}/>
@@ -67,8 +81,10 @@ function Appointment({doctor,setSelected}) {
                               <option value="tuesday">Tuesday</option>
                               <option value="wednesday">Wednesday</option>
                           </select> */}
+                         <label htmlFor="date" className="sr-only">Appointment date</label>
                          <input name='date' id='date' type="date" />
 
+                          <label htmlFor="time" className="sr-only">Appointment time</label>
                           <select name="time" id="time">
                               <option value="monday">11:00 AM</option>
                               <option value="tuesday">12:00 AM</option>
@@ -76,11 +92,19 @@ function Appointment({doctor,setSelected}) {
                           </select>
                   </div>
                 </div>
-                 
-                <div id='book' onClick={handleBook} style={{ 
-                  opacity: loading ? 0.7 : 1, 
-                  cursor: loading ? 'not-allowed' : 'pointer' 
-                }}>
+
+                <div
+                  id='book'
+                  onClick={handleBook}
+                  onKeyDown={handleBookKeyDown}
+                  role="button"
+                  tabIndex={0}
+                  aria-busy={loading}
+                  aria-label="Book appointment"
+                  style={{
+                    opacity: loading ? 0.7 : 1,
+                    cursor: loading ? 'not-allowed' : 'pointer'
+                  }}>
                   {loading ? (
                     <>
                       <InlineSpinner size="small" />
