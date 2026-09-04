@@ -9,6 +9,7 @@ export const config = {
   SMTP_USER: process.env.SMTP_USER,
   SMTP_PASS: process.env.SMTP_PASS,
   MAIL_FROM: process.env.MAIL_FROM || "Med-Meet <no-reply@med-meet.local>",
+  CONTACT_EMAIL: process.env.CONTACT_EMAIL || "support@medmeet.com",
   ADMIN_API_KEY: process.env.ADMIN_API_KEY,
   SENTRY_DSN: process.env.SENTRY_DSN,
 };

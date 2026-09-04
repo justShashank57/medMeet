@@ -313,6 +313,37 @@ describe("Booking flow, confirmation and cancellation", () => {
   });
 });
 
+describe("Contact form", () => {
+  test("valid submission returns 201", async () => {
+    const res = await request(app).post("/contact").send({
+      name: "Jane Doe",
+      email: "jane.doe@example.com",
+      subject: "General Inquiry",
+      message: "Hello, I have a question.",
+    });
+    assert.equal(res.status, 201);
+  });
+
+  test("missing message returns 400", async () => {
+    const res = await request(app).post("/contact").send({
+      name: "Jane Doe",
+      email: "jane.doe@example.com",
+      subject: "General Inquiry",
+    });
+    assert.equal(res.status, 400);
+  });
+
+  test("invalid email returns 400", async () => {
+    const res = await request(app).post("/contact").send({
+      name: "Jane Doe",
+      email: "not-an-email",
+      subject: "General Inquiry",
+      message: "Hello.",
+    });
+    assert.equal(res.status, 400);
+  });
+});
+
 describe("Misc", () => {
   test("unknown route returns 404", async () => {
     const res = await request(app).get("/this-route-does-not-exist");

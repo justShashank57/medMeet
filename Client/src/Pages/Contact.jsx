@@ -1,16 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useToast } from '../components/Toast';
+import api from '../services/webcalls';
 
 export default function Contact() {
   const { addToast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    addToast({ 
-      message: 'Thank you for your message! We\'ll get back to you soon.', 
-      type: 'success' 
-    });
-    e.target.reset();
+    const form = e.target;
+    const formData = new FormData(form);
+    const data = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      subject: formData.get('subject'),
+      message: formData.get('message'),
+    };
+
+    setIsSubmitting(true);
+    try {
+      await api.contact.submit(data);
+      addToast({
+        message: 'Thank you for your message! We\'ll get back to you soon.',
+        type: 'success'
+      });
+      form.reset();
+    } catch (error) {
+      addToast({
+        message: error?.message || 'Failed to send your message. Please try again later.',
+        type: 'error'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -103,8 +125,8 @@ export default function Contact() {
                 required
               ></textarea>
               
-              <button type="submit" className="submit-btn">
-                Send Message
+              <button type="submit" className="submit-btn" disabled={isSubmitting}>
+                {isSubmitting ? 'Sending...' : 'Send Message'}
               </button>
             </form>
           </div>
@@ -266,6 +288,12 @@ export default function Contact() {
         .submit-btn:hover {
           background: #1545d6;
           transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+          background: #9db8f5;
+          cursor: not-allowed;
+          transform: none;
         }
 
         @media (max-width: 768px) {

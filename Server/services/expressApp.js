@@ -9,6 +9,7 @@ import { sanitizeRequest } from "../middlewares/sanitize.js";
 import { adminRoute } from "../Routes/adminRoutes.js";
 import { doctorRoute } from "../Routes/doctorRoutes.js";
 import { patientRoute } from "../Routes/patientRoutes.js";
+import { contactRoute } from "../Routes/contactRoutes.js";
 import { apiLimiter } from "../middlewares/rateLimiter.js";
 import { errorHandler, notFoundHandler } from "../middlewares/errorHandler.js";
 import { httpLogStream } from "../utility/logger.js";
@@ -33,6 +34,7 @@ export default async (app)=>{
     app.use('/admin',adminRoute);
     app.use('/doctor',doctorRoute);
     app.use('/patient',patientRoute);
+    app.use('/contact',contactRoute);
 
     app.use(notFoundHandler);
     app.use(errorHandler);

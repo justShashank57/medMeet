@@ -197,6 +197,18 @@ export const api = {
     }
   },
 
+  // Contact form
+  contact: {
+    submit: async (data) => {
+      try {
+        const response = await axios.post(`${API_BASE_URL}/contact`, data);
+        return response.data;
+      } catch (error) {
+        throw error.response?.data || error;
+      }
+    }
+  },
+
   // Admin functions
   admin: {
     setKey: setAdminKey,

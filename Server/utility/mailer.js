@@ -14,13 +14,13 @@ const transporter = isConfigured
   : null;
 
 // Best-effort send: never throws, so a missing/broken mail server never blocks a booking.
-export const sendMail = async ({ to, subject, html }) => {
+export const sendMail = async ({ to, subject, html, replyTo }) => {
   if (!isConfigured) {
     logger.debug(`[mailer] SMTP not configured, skipping email to ${to}: ${subject}`);
     return;
   }
   try {
-    await transporter.sendMail({ from: config.MAIL_FROM, to, subject, html });
+    await transporter.sendMail({ from: config.MAIL_FROM, to, subject, html, replyTo });
   } catch (err) {
     logger.error("Failed to send email", { to, subject, error: err.message });
   }
@@ -38,4 +38,15 @@ export const sendAppointmentStatusEmail = (patientEmail, { doctorName, date, tim
     to: patientEmail,
     subject: `Appointment ${status.toLowerCase()}`,
     html: `<p>Your appointment with Dr. ${doctorName} on ${date} at ${time} is now <strong>${status}</strong>.</p>`,
+  });
+
+const escapeHtml = (str) =>
+  str.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+export const sendContactMessageEmail = ({ name, email, subject, message }) =>
+  sendMail({
+    to: config.CONTACT_EMAIL,
+    replyTo: email,
+    subject: `[Contact] ${escapeHtml(subject)}`,
+    html: `<p><strong>From:</strong> ${escapeHtml(name)} (${escapeHtml(email)})</p><p>${escapeHtml(message)}</p>`,
   });

@@ -62,6 +62,14 @@ export const validateMongoIdParam = (paramName) => [
   handleValidation,
 ];
 
+export const validateContact = [
+  body("name").trim().notEmpty().withMessage("Name is required."),
+  body("email").trim().isEmail().withMessage("Enter a valid email address.").normalizeEmail(),
+  body("subject").trim().notEmpty().withMessage("Subject is required."),
+  body("message").trim().isLength({ min: 1, max: 5000 }).withMessage("Message is required."),
+  handleValidation,
+];
+
 export const validatePagination = [
   query("page").optional().isInt({ min: 1 }).withMessage("page must be a positive integer."),
   query("limit").optional().isInt({ min: 1, max: 100 }).withMessage("limit must be between 1 and 100."),
