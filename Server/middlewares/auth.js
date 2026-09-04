@@ -27,3 +27,12 @@ export const requireAuth = (req, res, next) => {
         return res.status(401).json({ message: "Invalid authentication token." });
     }
 };
+
+// Restricts a route to a specific token role (e.g. "doctor" or "patient").
+// Must run after requireAuth so req.user is populated.
+export const requireRole = (role) => (req, res, next) => {
+    if (req.user?.role !== role) {
+        return res.status(403).json({ message: "Forbidden." });
+    }
+    return next();
+};

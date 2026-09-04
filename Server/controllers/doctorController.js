@@ -37,7 +37,8 @@ export const doctorSignup = async(req,res,next) => {
         const token_payload = {
               _id:doctor.id,
               email:doctor.email,
-              phone:doctor.phone
+              phone:doctor.phone,
+              role:"doctor"
         }
         const token = await createToken(token_payload);
         res.cookie(AUTH_COOKIE_NAME, token, authCookieOptions());
@@ -59,7 +60,8 @@ export const doctorLogin = async(req,res,next)=>{
                  const token_payload = {
                     _id:existingDoctor.id,
                     email:existingDoctor.email,
-                    phone:existingDoctor.phone
+                    phone:existingDoctor.phone,
+                    role:"doctor"
                  }
                  const token = await createToken(token_payload);
                  res.cookie(AUTH_COOKIE_NAME, token, authCookieOptions());

@@ -1,6 +1,6 @@
 import express from "express";
 import { confirmAppointment, doctorLogin, doctorProfile, doctorSignup, getAppointments, logout, updateAppointmentStatus, updateProfile, updateService } from "../controllers/doctorController.js";
-import { requireAuth } from "../middlewares/auth.js";
+import { requireAuth, requireRole } from "../middlewares/auth.js";
 import { getAppointmentByID } from "../controllers/patientController.js";
 import { authLimiter } from "../middlewares/rateLimiter.js";
 import { validateDoctorSignup, validateLogin, validateMongoIdParam } from "../middlewares/validate.js";
@@ -55,7 +55,7 @@ router.post('/signup',authLimiter,validateDoctorSignup,doctorSignup);
  */
 router.post('/login',authLimiter,validateLogin,doctorLogin);
 
-router.use(requireAuth);
+router.use(requireAuth, requireRole("doctor"));
 
 /**
  * @swagger

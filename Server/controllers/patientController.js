@@ -52,7 +52,8 @@ export const patientSignup = async(req,res,next)=>{
             const token_payload = {
                   _id:patient.id,
                   email:patient.email,
-                  phone:patient.phone
+                  phone:patient.phone,
+                  role:"patient"
             }
             const token = await createToken(token_payload);
             res.cookie(AUTH_COOKIE_NAME, token, authCookieOptions());
@@ -76,7 +77,8 @@ export const patientLogin = async(req,res,next)=>{
               const token_payload = {
                  _id:existingPatient.id,
                  email:existingPatient.email,
-                 phone:existingPatient.phone
+                 phone:existingPatient.phone,
+                 role:"patient"
               }
               const token = await createToken(token_payload);
               res.cookie(AUTH_COOKIE_NAME, token, authCookieOptions());
@@ -213,10 +215,14 @@ export const getAppointmentByID = async(req,res,next)=>{
        const id = req.params.id;
        try{
              const appointment = await Appointment.findById(id);
-             if(appointment){
-                return res.status(200).json(appointment);
+             if(!appointment){
+                return res.status(404).json({message:"Appointment not found."});
              }
-           return res.status(404).json({message:"Appointment not found."})
+             const ownerId = req.user.role === "doctor" ? appointment.doctorId : appointment.patientId;
+             if(ownerId !== req.user._id){
+                return res.status(404).json({message:"Appointment not found."});
+             }
+             return res.status(200).json(appointment);
        }
        catch(err){
            next(err);

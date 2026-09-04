@@ -1,6 +1,6 @@
 import express from "express";
 import { cancelAppointment, createAppointment, getAppointmentByID, getDoctorById, patientLogin, patientProfile, patientSignup, updatePatientProfile, viewAppointments, viewDoctors } from "../controllers/patientController.js";
-import { requireAuth } from "../middlewares/auth.js";
+import { requireAuth, requireRole } from "../middlewares/auth.js";
 import { logout } from "../controllers/doctorController.js";
 import { authLimiter } from "../middlewares/rateLimiter.js";
 import { validateCreateAppointment, validateLogin, validateMongoIdParam, validatePagination, validateSignup } from "../middlewares/validate.js";
@@ -80,7 +80,7 @@ router.post('/login',authLimiter,validateLogin,patientLogin);
  */
 router.get('/getDoctors',validatePagination,viewDoctors);
 
-router.use(requireAuth)
+router.use(requireAuth, requireRole("patient"))
 
 /**
  * @swagger
